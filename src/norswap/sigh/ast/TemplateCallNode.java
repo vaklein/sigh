@@ -12,6 +12,8 @@ public final class TemplateCallNode extends ExpressionNode
     @SuppressWarnings("unchecked")
     public TemplateCallNode (Span span, Object template, Object arguments) {
         super(span);
+        System.out.println(template);
+        System.out.println(template.getClass());
         this.template = Util.cast(template, ExpressionNode.class);
         this.arguments = Util.cast(arguments, List.class);
     }

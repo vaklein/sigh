@@ -247,7 +247,7 @@ public final class InterpreterTests extends TestFixture {
     @Test
     public void testCalls () {
         rule = grammar.root;
-        check(
+        /*check(
             "template test (x: Int, y: Int):Int { return x+y }" +
                 "return test(1, 2)",
             3L);
@@ -255,8 +255,10 @@ public final class InterpreterTests extends TestFixture {
             "template test (x: String, y: String):String { return x+y }" +
                 "return test(\"1\", \"3\")",
             "13");
+
+         */
         check(
-            "template test (x: Void, y: Void):String { return x+y }" +
+            "template test (x: String, y: String):String { return x+y }" +
                 "return test(\"1\", \"3\")",
             "13");
         /*

@@ -1,3 +1,4 @@
+import com.sun.codemodel.internal.JStringLiteral;
 import norswap.autumn.AutumnTestFixture;
 import norswap.sigh.SighGrammar;
 import norswap.sigh.ast.*;
@@ -107,6 +108,19 @@ public class GrammarTests extends AutumnTestFixture {
                 asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
                 new SimpleTypeNode(null, "Int"),
                 new BlockNode(null, asList(new ReturnNode(null, intlit(1))))));
+
+        successExpect("template t (x: Void): Int { return 1 }",
+            new TemplateDeclarationNode(null, "t",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Void"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new ReturnNode(null, intlit(1))))));
+
+        successExpect("template t (x: Void, y:Void): Int { return 1 }",
+            new TemplateDeclarationNode(null, "t",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Void")), new ParameterNode(null, "y", new SimpleTypeNode(null, "Void"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new ReturnNode(null, intlit(1))))));
+
     }
 
     // ---------------------------------------------------------------------------------------------

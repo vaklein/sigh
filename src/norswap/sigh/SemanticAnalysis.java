@@ -10,8 +10,12 @@ import norswap.sigh.types.*;
 import norswap.uranium.Attribute;
 import norswap.uranium.Reactor;
 import norswap.uranium.Rule;
+import norswap.utils.Util;
 import norswap.utils.visitors.ReflectiveFieldWalker;
 import norswap.utils.visitors.Walker;
+import java.lang.reflect.Field;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -441,8 +445,10 @@ public final class SemanticAnalysis
         });
     }
     // ---------------------------------------------------------------------------------------------
-
-    private void templateCall (TemplateCallNode node)
+    private void templateCall (TemplateCallNode node) {
+        templateCall2(node, true);
+    }
+    private void templateCall2 (TemplateCallNode node, boolean first)
     {
         this.inferenceContext = node;
 
@@ -455,6 +461,8 @@ public final class SemanticAnalysis
             R.set(arg, "index", i);
         });
 
+        System.out.println(node.template);
+        Scope scope_bis = scope;
         R.rule(node, "type")
             .using(dependencies)
             .by(r -> {
@@ -464,6 +472,38 @@ public final class SemanticAnalysis
                 r.set(0, new FunType(r.get(0), paramTypes));
 
                 Type maybeFunType = r.get(0);
+
+                //On rentre dans le IF si on a pas encore recree le nouveau template avec les nouveaux types
+                if (first){
+                    scope = scope_bis;
+                    for(Attribute i : R.getAttributes()){
+                        if (i.node instanceof TemplateDeclarationNode){
+
+                            //Nouveau template avec les bons types
+                            TemplateDeclarationNode t = (TemplateDeclarationNode) i.node;
+                            List<ParameterNode> list = new ArrayList<ParameterNode>();
+                            for (int k = 0; k < paramTypes.length;k++) {
+                                ParameterNode j_bis = new ParameterNode(t.span, t.parameters.get(k).name, new SimpleTypeNode(t.span,r.get(k+1).getClass().getSimpleName()));
+                                list.add(j_bis);
+
+                                System.out.println("ici 111 : " + j_bis.type);
+                            }
+                            TemplateDeclarationNode temp = new TemplateDeclarationNode(t.span, t.name+"_bis", list, t.returnType, t.block);
+
+                            //On essaye de redeclare le nouveau template avec un nom different
+                            templateDecl(temp);
+                            System.out.println("ici2 " +  temp.parameters);
+                            System.out.println("ici3 " +  node.arguments);
+
+                            //On recree une node qui va executer le nouveau template
+                            ExpressionNode template2 = Util.cast(new ReferenceNode(node.span, t.name+"_bis"), ExpressionNode.class);
+                            TemplateCallNode temp2 = new TemplateCallNode(node.span, template2, node.arguments);
+                            templateCall2(temp2, false);
+                            return;
+                        }
+                    }
+                }
+
                 System.out.println("ici2" + r.get(1) + " " + r.get(2));
 
                 if (!(maybeFunType instanceof FunType)) {
