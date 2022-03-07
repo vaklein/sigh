@@ -1,0 +1,6 @@
+template test (x:Int, y:Int):Int
+{
+return x+y
+}
+
+print("" + test(1,2))

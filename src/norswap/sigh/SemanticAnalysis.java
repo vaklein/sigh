@@ -119,6 +119,7 @@ public final class SemanticAnalysis
         walker.register(FieldAccessNode.class,          PRE_VISIT,  analysis::fieldAccess);
         walker.register(ArrayAccessNode.class,          PRE_VISIT,  analysis::arrayAccess);
         walker.register(FunCallNode.class,              PRE_VISIT,  analysis::funCall);
+        walker.register(TemplateCallNode.class,         PRE_VISIT,  analysis::templateCall);
         walker.register(UnaryExpressionNode.class,      PRE_VISIT,  analysis::unaryExpression);
         walker.register(BinaryExpressionNode.class,     PRE_VISIT,  analysis::binaryExpression);
         walker.register(AssignmentNode.class,           PRE_VISIT,  analysis::assignment);
@@ -134,11 +135,13 @@ public final class SemanticAnalysis
         walker.register(FieldDeclarationNode.class,     PRE_VISIT,  analysis::fieldDecl);
         walker.register(ParameterNode.class,            PRE_VISIT,  analysis::parameter);
         walker.register(FunDeclarationNode.class,       PRE_VISIT,  analysis::funDecl);
+        walker.register(TemplateDeclarationNode.class,  PRE_VISIT,  analysis::templateDecl);
         walker.register(StructDeclarationNode.class,    PRE_VISIT,  analysis::structDecl);
 
         walker.register(RootNode.class,                 POST_VISIT, analysis::popScope);
         walker.register(BlockNode.class,                POST_VISIT, analysis::popScope);
         walker.register(FunDeclarationNode.class,       POST_VISIT, analysis::popScope);
+        walker.register(TemplateDeclarationNode.class,  POST_VISIT, analysis::popScope);
 
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
@@ -437,7 +440,74 @@ public final class SemanticAnalysis
             }
         });
     }
+    // ---------------------------------------------------------------------------------------------
 
+    private void templateCall (TemplateCallNode node)
+    {
+        this.inferenceContext = node;
+
+        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
+        dependencies[0] = node.template.attr("type");
+
+        forEachIndexed(node.arguments, (i, arg) -> {
+            System.out.println(arg.attr("type"));
+            dependencies[i + 1] = arg.attr("type");
+            R.set(arg, "index", i);
+        });
+
+        R.rule(node, "type")
+            .using(dependencies)
+            .by(r -> {
+                Type[] paramTypes = new Type[node.arguments.size()];
+                for (int i = 0; i < paramTypes.length; ++i)
+                    paramTypes[i] = r.get(i + 1);
+                r.set(0, new FunType(r.get(0), paramTypes));
+
+                Type maybeFunType = r.get(0);
+                System.out.println("ici2" + r.get(1) + " " + r.get(2));
+
+                if (!(maybeFunType instanceof FunType)) {
+                    r.error("trying to call a non-function expression: " + node.template, node.template);
+                    return;
+                }
+
+                FunType funType = cast(maybeFunType);
+                r.set(0, funType.returnType);
+
+                Type[] params = funType.paramTypes;
+                List<ExpressionNode> args = node.arguments;
+
+                if (params.length != args.size())
+                    r.errorFor(format("wrong number of arguments, expected %d but got %d",
+                            params.length, args.size()),
+                        node);
+
+                int checkedArgs = Math.min(params.length, args.size());
+
+                Type[] lst = new Type[funType.paramTypes.length];
+                for (int i = 0; i < checkedArgs; ++i) {
+                    Type argType = r.get(i + 1);
+                    Type paramType = funType.paramTypes[i];
+                                       /* if (paramType.name().equals("Void")){
+                        lst[i] = r.get(i + 1);
+                        r.errorFor(format(
+                                "iciiii" + r.get(i + 1) +" "+node.arguments.get(i),
+                                i, paramType, argType),
+                            node.arguments.get(i));
+                    }
+                    else lst[i] = funType.paramTypes[i];
+
+                    if (!isAssignableTo(argType, paramType))
+                        r.errorFor(format(
+                                "incompatible argument provided for argument %d: expected %s but got %s",
+                                i, paramType, argType),
+                            node.arguments.get(i));
+
+                     */
+                }
+                r.set(0, new FunType(funType.returnType, lst));
+            });
+    }
     // ---------------------------------------------------------------------------------------------
 
     private void unaryExpression (UnaryExpressionNode node)
@@ -803,7 +873,38 @@ public final class SemanticAnalysis
             // NOTE: The returned value presence & type is checked in returnStmt().
         });
     }
+    // ---------------------------------------------------------------------------------------------
+    private void templateDecl (TemplateDeclarationNode node)
+    {
+        scope.declare(node.name, node);
+        scope = new Scope(node, scope);
+        R.set(node, "scope", scope);
 
+        Attribute[] dependencies = new Attribute[node.parameters.size() + 1];
+        dependencies[0] = node.returnType.attr("value");
+
+        forEachIndexed(node.parameters, (i, param) ->
+            dependencies[i + 1] = param.attr("type"));
+
+        R.rule(node, "type")
+            .using(dependencies)
+            .by (r -> {
+                Type[] paramTypes = new Type[node.parameters.size()];
+                for (int i = 0; i < paramTypes.length; ++i)
+                    paramTypes[i] = r.get(i + 1);
+                r.set(0, new FunType(r.get(0), paramTypes));
+            });
+
+        R.rule()
+            .using(node.block.attr("returns"), node.returnType.attr("value"))
+            .by(r -> {
+                boolean returns = r.get(0);
+                Type returnType = r.get(1);
+                if (!returns && !(returnType instanceof VoidType))
+                    r.error("No type is given. At least one is needed for the return type.", node);
+                // NOTE: The returned value presence & type is checked in returnStmt().
+            });
+    }
     // ---------------------------------------------------------------------------------------------
 
     private void structDecl (StructDeclarationNode node) {

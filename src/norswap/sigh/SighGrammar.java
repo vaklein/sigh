@@ -58,6 +58,8 @@ public class SighGrammar extends Grammar
     public rule _if             = reserved("if");
     public rule _else           = reserved("else");
     public rule _while          = reserved("while");
+    public rule _template       = reserved("template");
+    public rule _switch         = reserved("switch");
     public rule _return         = reserved("return");
 
     public rule number =
@@ -135,7 +137,7 @@ public class SighGrammar extends Grammar
         .suffix(seq(LSQUARE, lazy(() -> this.expression), RSQUARE),
             $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(function_args,
-            $ -> new FunCallNode($.span(), $.$[0], $.$[1]));
+            $ -> new TemplateCallNode($.span(), $.$[0], $.$[1]));
 
     public rule prefix_expression = right_expression()
         .operand(suffix_expression)
@@ -195,7 +197,7 @@ public class SighGrammar extends Grammar
     public rule expression_stmt =
         expression
         .filter($ -> {
-            if (!($.$[0] instanceof AssignmentNode || $.$[0] instanceof FunCallNode))
+            if (!($.$[0] instanceof AssignmentNode || $.$[0] instanceof FunCallNode || $.$[0] instanceof TemplateCallNode))
                 return false;
             $.push(new ExpressionStatementNode($.span(), $.$[0]));
             return true;
@@ -213,6 +215,7 @@ public class SighGrammar extends Grammar
         this.block,
         this.var_decl,
         this.fun_decl,
+        this.template_decl,
         this.struct_decl,
         this.if_stmt,
         this.while_stmt,
@@ -268,6 +271,10 @@ public class SighGrammar extends Grammar
     public rule return_stmt =
         seq(_return, expression.or_push_null())
         .push($ -> new ReturnNode($.span(), $.$[0]));
+
+    public rule template_decl =
+        seq(_template, identifier, LPAREN, parameters, RPAREN, maybe_return_type, block)
+            .push($ -> new TemplateDeclarationNode($.span(), $.$[0], $.$[1], $.$[2], $.$[3]));
 
     public rule root =
         seq(ws, statement.at_least(1))
