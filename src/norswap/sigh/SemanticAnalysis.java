@@ -450,64 +450,59 @@ public final class SemanticAnalysis
     }
     private void templateCall2 (TemplateCallNode node, boolean first)
     {
-        this.inferenceContext = node;
+        scope.declare("bis", scope.lookup("test").declaration);
+        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+        List<ParameterNode> liste = test.parameters;
+        System.out.println("node_arg "+node.arguments.get(0).getClass().getSimpleName());
+        for (int i =0; i < liste.size(); i++){
+            ParameterNode un = liste.get(i);
+            String type = node.arguments.get(i).getClass().getSimpleName();
+            type = type.split("L")[0];
+            System.out.println("type : "+type);
+            liste.set(i, new ParameterNode(un.span, un.name, new SimpleTypeNode(un.span, type+"Type")));
+            System.out.println(un);
+            System.out.println("lst " +liste.get(0).type);
+        }
 
-        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-        dependencies[0] = node.template.attr("type");
+        TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
+        //On essaye de redeclare le nouveau template avec un nom different
+        templateDecl(test2);
 
-        forEachIndexed(node.arguments, (i, arg) -> {
-            System.out.println(arg.attr("type"));
+        //On recree une node qui va executer le nouveau template
+        ExpressionNode template2 = Util.cast(new ReferenceNode(node.span, "bis"), ExpressionNode.class);
+        TemplateCallNode node2 = new TemplateCallNode(node.span, template2, node.arguments);
+
+        System.out.println(((TemplateDeclarationNode) scope.lookup("bis").declaration).parameters);
+
+        this.inferenceContext = node2;
+        System.out.println("1");
+        Attribute[] dependencies = new Attribute[node2.arguments.size() + 1];
+        System.out.println("2");
+        dependencies[0] = node2.template.attr("type");
+        System.out.println("3");
+
+        forEachIndexed(node2.arguments, (i, arg) -> {
+            System.out.println("4");
             dependencies[i + 1] = arg.attr("type");
             R.set(arg, "index", i);
         });
-
-        System.out.println(node.template);
+        System.out.println("5");
         Scope scope_bis = scope;
         R.rule(node, "type")
             .using(dependencies)
             .by(r -> {
-                Type[] paramTypes = new Type[node.arguments.size()];
-                for (int i = 0; i < paramTypes.length; ++i)
+                System.out.println("start");
+                Type[] paramTypes = new Type[node2.arguments.size()];
+                for (int i = 0; i < paramTypes.length; ++i) {
                     paramTypes[i] = r.get(i + 1);
                 r.set(0, new FunType(r.get(0), paramTypes));
 
                 Type maybeFunType = r.get(0);
 
-                //On rentre dans le IF si on a pas encore recree le nouveau template avec les nouveaux types
-                if (first){
-                    scope = scope_bis;
-                    for(Attribute i : R.getAttributes()){
-                        if (i.node instanceof TemplateDeclarationNode){
-
-                            //Nouveau template avec les bons types
-                            TemplateDeclarationNode t = (TemplateDeclarationNode) i.node;
-                            List<ParameterNode> list = new ArrayList<ParameterNode>();
-                            for (int k = 0; k < paramTypes.length;k++) {
-                                ParameterNode j_bis = new ParameterNode(t.span, t.parameters.get(k).name, new SimpleTypeNode(t.span,r.get(k+1).getClass().getSimpleName()));
-                                list.add(j_bis);
-
-                                System.out.println("ici 111 : " + j_bis.type);
-                            }
-                            TemplateDeclarationNode temp = new TemplateDeclarationNode(t.span, t.name+"_bis", list, t.returnType, t.block);
-
-                            //On essaye de redeclare le nouveau template avec un nom different
-                            templateDecl(temp);
-                            System.out.println("ici2 " +  temp.parameters);
-                            System.out.println("ici3 " +  node.arguments);
-
-                            //On recree une node qui va executer le nouveau template
-                            ExpressionNode template2 = Util.cast(new ReferenceNode(node.span, t.name+"_bis"), ExpressionNode.class);
-                            TemplateCallNode temp2 = new TemplateCallNode(node.span, template2, node.arguments);
-                            templateCall2(temp2, false);
-                            return;
-                        }
-                    }
-                }
-
                 System.out.println("ici2" + r.get(1) + " " + r.get(2));
 
                 if (!(maybeFunType instanceof FunType)) {
-                    r.error("trying to call a non-function expression: " + node.template, node.template);
+                    r.error("trying to call a non-function expression: " + node2.template, node2.template);
                     return;
                 }
 
