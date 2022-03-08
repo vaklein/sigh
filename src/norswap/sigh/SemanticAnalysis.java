@@ -409,7 +409,6 @@ public final class SemanticAnalysis
             dependencies[i + 1] = arg.attr("type");
             R.set(arg, "index", i);
         });
-
         R.rule(node, "type")
         .using(dependencies)
         .by(r -> {
@@ -445,25 +444,23 @@ public final class SemanticAnalysis
         });
     }
     // ---------------------------------------------------------------------------------------------
-    private void templateCall (TemplateCallNode node) {
-        templateCall2(node, true);
-    }
-    private void templateCall2 (TemplateCallNode node, boolean first)
+    private void templateCall (TemplateCallNode node)
     {
+        // Duplicate the declaration node from the scope
         scope.declare("bis", scope.lookup("test").declaration);
         TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+        //Modify the paramters
         List<ParameterNode> liste = test.parameters;
         System.out.println("node_arg "+node.arguments.get(0).getClass().getSimpleName());
         for (int i =0; i < liste.size(); i++){
             ParameterNode un = liste.get(i);
+
             String type = node.arguments.get(i).getClass().getSimpleName();
             type = type.split("L")[0];
-            System.out.println("type : "+type);
-            liste.set(i, new ParameterNode(un.span, un.name, new SimpleTypeNode(un.span, type+"Type")));
-            System.out.println(un);
-            System.out.println("lst " +liste.get(0).type);
-        }
 
+            liste.set(i, new ParameterNode(un.span, un.name, new SimpleTypeNode(un.span, type+"Type")));
+        }
+        //Create new decleration node with name "bis"
         TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
         //On essaye de redeclare le nouveau template avec un nom different
         templateDecl(test2);
@@ -475,9 +472,7 @@ public final class SemanticAnalysis
         System.out.println(((TemplateDeclarationNode) scope.lookup("bis").declaration).parameters);
 
         this.inferenceContext = node2;
-        System.out.println("1");
-        Attribute[] dependencies = new Attribute[node2.arguments.size() + 1];
-        System.out.println("2");
+        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
         dependencies[0] = node2.template.attr("type");
         System.out.println("3");
 
@@ -510,12 +505,12 @@ public final class SemanticAnalysis
                 r.set(0, funType.returnType);
 
                 Type[] params = funType.paramTypes;
-                List<ExpressionNode> args = node.arguments;
+                List<ExpressionNode> args = node2.arguments;
 
                 if (params.length != args.size())
                     r.errorFor(format("wrong number of arguments, expected %d but got %d",
                             params.length, args.size()),
-                        node);
+                        node2);
 
                 int checkedArgs = Math.min(params.length, args.size());
 

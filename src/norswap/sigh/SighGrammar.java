@@ -130,6 +130,9 @@ public class SighGrammar extends Grammar
     public rule function_args =
         seq(LPAREN, expressions, RPAREN);
 
+    public rule template_args =
+        seq(LSQUARE, expressions, RSQUARE);
+
     public rule suffix_expression = left_expression()
         .left(basic_expression)
         .suffix(seq(DOT, identifier),
@@ -137,6 +140,8 @@ public class SighGrammar extends Grammar
         .suffix(seq(LSQUARE, lazy(() -> this.expression), RSQUARE),
             $ -> new ArrayAccessNode($.span(), $.$[0], $.$[1]))
         .suffix(function_args,
+            $ -> new FunCallNode($.span(), $.$[0], $.$[1]))
+        .suffix(template_args,
             $ -> new TemplateCallNode($.span(), $.$[0], $.$[1]));
 
     public rule prefix_expression = right_expression()
