@@ -1,4 +1,3 @@
-import com.sun.codemodel.internal.JStringLiteral;
 import norswap.autumn.AutumnTestFixture;
 import norswap.sigh.SighGrammar;
 import norswap.sigh.ast.*;
