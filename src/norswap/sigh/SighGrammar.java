@@ -131,7 +131,7 @@ public class SighGrammar extends Grammar
         seq(LPAREN, expressions, RPAREN);
 
     public rule template_args =
-        seq(LSQUARE, expressions, RSQUARE);
+        seq(LBRACE, expressions, RBRACE);
 
     public rule suffix_expression = left_expression()
         .left(basic_expression)

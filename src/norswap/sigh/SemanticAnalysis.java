@@ -466,76 +466,55 @@ public final class SemanticAnalysis
         templateDecl(test2);
 
         //On recree une node qui va executer le nouveau template
-        ExpressionNode template2 = Util.cast(new ReferenceNode(node.span, "bis"), ExpressionNode.class);
-        TemplateCallNode node2 = new TemplateCallNode(node.span, template2, node.arguments);
+        ExpressionNode template2 = Util.cast(new ReferenceNode(test.span, "bis"), ExpressionNode.class);
 
-        System.out.println(((TemplateDeclarationNode) scope.lookup("bis").declaration).parameters);
-
-        this.inferenceContext = node2;
+        node.template = template2;
+        this.inferenceContext = node;
         Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-        dependencies[0] = node2.template.attr("type");
+        dependencies[0] = node.template.attr("type");
         System.out.println("3");
 
-        forEachIndexed(node2.arguments, (i, arg) -> {
+        forEachIndexed(node.arguments, (i, arg) -> {
             System.out.println("4");
             dependencies[i + 1] = arg.attr("type");
             R.set(arg, "index", i);
         });
-        System.out.println("5");
-        Scope scope_bis = scope;
+        System.out.println(Arrays.toString(dependencies));
         R.rule(node, "type")
             .using(dependencies)
             .by(r -> {
                 System.out.println("start");
-                Type[] paramTypes = new Type[node2.arguments.size()];
-                for (int i = 0; i < paramTypes.length; ++i) {
-                    paramTypes[i] = r.get(i + 1);
-                r.set(0, new FunType(r.get(0), paramTypes));
 
                 Type maybeFunType = r.get(0);
 
                 System.out.println("ici2" + r.get(1) + " " + r.get(2));
 
                 if (!(maybeFunType instanceof FunType)) {
-                    r.error("trying to call a non-function expression: " + node2.template, node2.template);
+                    r.error("trying to call a non-function expression: " + node.template, node.template);
                     return;
                 }
-
                 FunType funType = cast(maybeFunType);
                 r.set(0, funType.returnType);
 
                 Type[] params = funType.paramTypes;
-                List<ExpressionNode> args = node2.arguments;
+                List<ExpressionNode> args = node.arguments;
 
                 if (params.length != args.size())
                     r.errorFor(format("wrong number of arguments, expected %d but got %d",
                             params.length, args.size()),
-                        node2);
+                        node);
 
                 int checkedArgs = Math.min(params.length, args.size());
 
-                Type[] lst = new Type[funType.paramTypes.length];
                 for (int i = 0; i < checkedArgs; ++i) {
                     Type argType = r.get(i + 1);
                     Type paramType = funType.paramTypes[i];
-                                       /* if (paramType.name().equals("Void")){
-                        lst[i] = r.get(i + 1);
-                        r.errorFor(format(
-                                "iciiii" + r.get(i + 1) +" "+node.arguments.get(i),
-                                i, paramType, argType),
-                            node.arguments.get(i));
-                    }
-                    else lst[i] = funType.paramTypes[i];
-
                     if (!isAssignableTo(argType, paramType))
                         r.errorFor(format(
                                 "incompatible argument provided for argument %d: expected %s but got %s",
                                 i, paramType, argType),
                             node.arguments.get(i));
-
-                     */
                 }
-                r.set(0, new FunType(funType.returnType, lst));
             });
     }
     // ---------------------------------------------------------------------------------------------
