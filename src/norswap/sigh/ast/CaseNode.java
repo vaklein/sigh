@@ -11,7 +11,8 @@ public final class CaseNode extends StatementNode
     public CaseNode (Span span, Object condition, Object trueStatement) {
         super(span);
         this.condition = Util.cast(condition, ExpressionNode.class);
-        this.trueStatement = Util.cast(trueStatement, StatementNode.class);;
+        this.trueStatement = Util.cast(trueStatement, StatementNode.class);
+        System.out.println(condition);
     }
 
     @Override public String contents ()

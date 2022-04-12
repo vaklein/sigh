@@ -38,6 +38,7 @@ public class SighGrammar extends Grammar
     public rule LSQUARE         = word("[");
     public rule RSQUARE         = word("]");
     public rule COLON           = word(":");
+    public rule SEMICOLON       = word(";");
     public rule EQUALS_EQUALS   = word("==");
     public rule EQUALS          = word("=");
     public rule BANG_EQUAL      = word("!=");
@@ -224,6 +225,7 @@ public class SighGrammar extends Grammar
         this.template_decl,
         this.struct_decl,
         this.if_stmt,
+        this.switch_stmt,
         this.while_stmt,
         this.return_stmt,
         this.expression_stmt));
@@ -271,8 +273,9 @@ public class SighGrammar extends Grammar
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule switch_stmt =
-        seq(_switch, LPAREN, expression, RPAREN, LBRACE, seq(_case, expression, COLON,  statement).as_list(StatementNode.class).at_least(1), RBRACE)
+        seq(_switch, LPAREN, expression, RPAREN, LBRACE, case_stmt, RBRACE)
             .push($ -> new SwitchNode($.span(), $.$[0], $.$[1]));
+
     public rule while_stmt =
         seq(_while, expression, statement)
         .push($ -> new WhileNode($.span(), $.$[0], $.$[1]));

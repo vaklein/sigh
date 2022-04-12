@@ -122,7 +122,7 @@ public class GrammarTests extends AutumnTestFixture {
 
         //Switch tests
         successExpect("fun f (x: Int): Int { " +
-                "switch (x) { case 5 : return 0" +
+                "switch (x) { case 5 : return 0;" +
                 "             case 1 : return -1} " +
                 "return 2 }",
             new FunDeclarationNode(null, "f",

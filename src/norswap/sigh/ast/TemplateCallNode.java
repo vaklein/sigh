@@ -6,7 +6,7 @@ import java.util.List;
 
 public final class TemplateCallNode extends ExpressionNode
 {
-    public final ExpressionNode template;
+    public ExpressionNode template;
     public final List<ExpressionNode> arguments;
 
     @SuppressWarnings("unchecked")

@@ -13,6 +13,7 @@ public final class SwitchNode extends StatementNode
         super(span);
         this.argument = Util.cast(argument, ExpressionNode.class);
         this.cases = Util.cast(cases, List.class);
+
     }
 
     @Override public String contents ()
