@@ -273,7 +273,7 @@ public class SighGrammar extends Grammar
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule switch_stmt =
-        seq(_switch, LPAREN, expression, RPAREN, LBRACE, case_stmt, RBRACE)
+        seq(_switch, LPAREN, expression, RPAREN, LBRACE, seq(seq(_case, expression, COLON, statement), seq(_case, expression, COLON, statement)).as_list(CaseNode.class), RBRACE)
             .push($ -> new SwitchNode($.span(), $.$[0], $.$[1]));
 
     public rule while_stmt =

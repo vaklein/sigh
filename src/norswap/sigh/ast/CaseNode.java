@@ -12,7 +12,7 @@ public final class CaseNode extends StatementNode
         super(span);
         this.condition = Util.cast(condition, ExpressionNode.class);
         this.trueStatement = Util.cast(trueStatement, StatementNode.class);
-        System.out.println(condition);
+        System.out.println(this.trueStatement);
     }
 
     @Override public String contents ()
