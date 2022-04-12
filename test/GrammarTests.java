@@ -120,6 +120,18 @@ public class GrammarTests extends AutumnTestFixture {
                 new SimpleTypeNode(null, "Int"),
                 new BlockNode(null, asList(new ReturnNode(null, intlit(1))))));
 
+        //Switch tests
+        successExpect("fun f (x: Int): Int { " +
+                "switch (x) { case 5 : return 0" +
+                "             case 1 : return -1} " +
+                "return 2 }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
+                            asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))), new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))))),
+                            new ReturnNode(null, intlit(2))))));
+
     }
 
     // ---------------------------------------------------------------------------------------------

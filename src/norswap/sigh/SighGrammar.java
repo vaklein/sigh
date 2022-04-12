@@ -60,6 +60,7 @@ public class SighGrammar extends Grammar
     public rule _while          = reserved("while");
     public rule _template       = reserved("template");
     public rule _switch         = reserved("switch");
+    public rule _case           = reserved("case");
     public rule _return         = reserved("return");
 
     public rule number =
@@ -269,6 +270,9 @@ public class SighGrammar extends Grammar
         seq(_if, expression, statement, seq(_else, statement).or_push_null())
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
+    public rule switch_stmt =
+        seq(_switch, LPAREN, expression, RPAREN, LBRACE, seq(_case, expression, COLON,  statement).as_list(StatementNode.class).at_least(1), RBRACE)
+            .push($ -> new SwitchNode($.span(), $.$[0], $.$[1]));
     public rule while_stmt =
         seq(_while, expression, statement)
         .push($ -> new WhileNode($.span(), $.$[0], $.$[1]));

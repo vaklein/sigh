@@ -466,7 +466,7 @@ public final class SemanticAnalysis
         templateDecl(test2);
 
         //On recree une node qui va executer le nouveau template
-        ExpressionNode template2 = Util.cast(new ReferenceNode(test.span, "bis"), ExpressionNode.class);
+        ExpressionNode template2 = Util.cast(new ReferenceNode(test2.span, "bis"), ExpressionNode.class);
 
         node.template = template2;
         this.inferenceContext = node;
