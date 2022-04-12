@@ -122,7 +122,7 @@ public class GrammarTests extends AutumnTestFixture {
 
         //Switch tests
         successExpect("fun f (x: Int): Int { " +
-                "switch (x) { case 5 : return 0" +
+                "switch (x) { case 5 : return 0," +
                 "             case 1 : return -1} " +
                 "return 2 }",
             new FunDeclarationNode(null, "f",
@@ -132,6 +132,51 @@ public class GrammarTests extends AutumnTestFixture {
                             asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))), new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))))),
                             new ReturnNode(null, intlit(2))))));
 
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testSwitch() {
+        rule = grammar.statement;
+
+        //Switch tests
+        successExpect("fun f (x: Int): Int { " +
+                "switch (x) { case 5 : return 0} " +
+                "return 2 }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
+                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))))),
+                    new ReturnNode(null, intlit(2))))));
+
+        //Switch tests
+        successExpect("fun f (x: Int): Int { " +
+                "switch (x) { case 5 : return 0," +
+                "             case 1 : return -1} " +
+                "return 2 }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
+                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))),
+                               new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))))),
+                    new ReturnNode(null, intlit(2))))));
+
+        //Switch tests
+        successExpect("fun f (x: Int): Int { " +
+                "switch (x) { case 5 : return 0," +
+                "             case 1 : return -1," +
+                "             case 3 : return 9} " +
+                "return 2 }",
+            new FunDeclarationNode(null, "f",
+                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
+                new SimpleTypeNode(null, "Int"),
+                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
+                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))),
+                               new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))),
+                               new CaseNode(null, intlit(3), new ReturnNode(null, intlit(9))))),
+                    new ReturnNode(null, intlit(2))))));
     }
 
     // ---------------------------------------------------------------------------------------------
