@@ -18,8 +18,8 @@ public final class SwitchNode extends StatementNode
 
     @Override public String contents ()
     {
-        String condition = this.contents();
-        String candidate = String.format("switch %s ...", argument);
+        String condition = this.argument.contents();
+        String candidate = String.format("switch %s ...", condition);
 
         return candidate;
     }

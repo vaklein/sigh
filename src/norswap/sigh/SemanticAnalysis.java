@@ -150,6 +150,8 @@ public final class SemanticAnalysis
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
         walker.register(IfNode.class,                   PRE_VISIT,  analysis::ifStmt);
+        walker.register(SwitchNode.class,               PRE_VISIT,  analysis::switchStmt);
+        walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
         walker.register(WhileNode.class,                PRE_VISIT,  analysis::whileStmt);
         walker.register(ReturnNode.class,               PRE_VISIT,  analysis::returnStmt);
 
@@ -946,6 +948,47 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
+    private void switchStmt (SwitchNode node) {
+        R.rule()
+            .using(node.argument, "argument")
+            .by(r -> {
+                ExpressionNode argument = r.get(0);
+                if (argument == null) {
+                    r.error("Argument is null",
+                        node.argument);
+                }
+            });
+        R.rule()
+            .using(node.cases, "cases")
+            .by(r -> {
+                List<CaseNode> list = r.get(0);
+                if (list == null) {
+                    r.error("Case is null",
+                        node.cases);
+                }
+            });
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    private void caseStmt (CaseNode node) {
+        R.rule()
+            .using(node.condition, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof BoolType)) {
+                    r.error("Case statement with a non-boolean condition of type: " + type,
+                        node.condition);
+                }
+            });
+
+        Attribute[] deps = getReturnsDependencies(list(node.trueStatement, null));
+        R.rule(node, "returns")
+            .using(deps)
+            .by(r -> r.set(0, deps.length == 2 && Arrays.stream(deps).allMatch(r::get)));
+    }
+
+    // ---------------------------------------------------------------------------------------------
     private void whileStmt (WhileNode node) {
         R.rule()
         .using(node.condition, "type")
