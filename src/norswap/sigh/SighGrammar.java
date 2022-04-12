@@ -272,6 +272,14 @@ public class SighGrammar extends Grammar
         seq(_if, expression, statement, seq(_else, statement).or_push_null())
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
+    public rule case_expr =
+        seq(_case, expression, COLON, statement)
+            .push($ -> new CaseNode($.span(), $.$[0], $.$[1]));
+
+    public rule case_stmt =
+        case_expr.sep(0, SEMICOLON)
+            .as_list(CaseNode.class);
+
     public rule switch_stmt =
         seq(_switch, LPAREN, expression, RPAREN, LBRACE, seq(seq(_case, expression, COLON, statement), seq(_case, expression, COLON, statement)).as_list(CaseNode.class), RBRACE)
             .push($ -> new SwitchNode($.span(), $.$[0], $.$[1]));
