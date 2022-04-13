@@ -14,9 +14,7 @@ import norswap.utils.Util;
 import norswap.utils.exceptions.Exceptions;
 import norswap.utils.exceptions.NoStackException;
 import norswap.utils.visitors.ValuedVisitor;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static norswap.utils.Util.cast;
 import static norswap.utils.Vanilla.coIterate;
@@ -67,6 +65,7 @@ public final class Interpreter
         visitor.register(ReferenceNode.class,            this::reference);
         visitor.register(ConstructorNode.class,          this::constructor);
         visitor.register(ArrayLiteralNode.class,         this::arrayLiteral);
+        visitor.register(ListComprehensionNode.class,    this::LstComp);
         visitor.register(ParenthesizedNode.class,        this::parenthesized);
         visitor.register(FieldAccessNode.class,          this::fieldAccess);
         visitor.register(ArrayAccessNode.class,          this::arrayAccess);
@@ -155,7 +154,158 @@ public final class Interpreter
     private Object[] arrayLiteral (ArrayLiteralNode node) {
         return map(node.components, new Object[0], visitor);
     }
+    // ---------------------------------------------------------------------------------------------
 
+    private Object[] LstComp (ListComprehensionNode node) {
+        ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
+        // cast to the right type to compare value  ////
+
+        String t = node.stmt.getClass().getTypeName().split("\\.")[3];
+        if (node.stmt.getClass().getTypeName().equals("IntLiteralNode")) {
+            int x = 5;
+        }
+        switch (node.stmt.getClass().getTypeName().split("\\.")[3]) {
+            case "IntLiteralNode":
+
+                List<IntLiteralNode> lst_of_int = new ArrayList<>();
+                IntLiteralNode int_to_compare = (IntLiteralNode) node.stmt;
+                for (ExpressionNode i : array.components) {
+                    lst_of_int.add((IntLiteralNode) i);
+                }
+                List<ExpressionNode> lst1 = new ArrayList<>();
+
+                switch (node.condition.value) {
+                    case "!=" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value != int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                    case "==" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value == int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                    case ">=" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value >= int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                    case "<=" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value <= int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                    case "<" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value < int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                    case ">" :
+                        for (IntLiteralNode i : lst_of_int){
+                            if (i.value > int_to_compare.value){
+                                lst1.add(i);
+                            };
+                        }
+                        return map(lst1, new Object[0], visitor);
+                }
+                break;
+
+            case "FloatLiteralNode":
+                List<FloatLiteralNode> lst_of_float = new ArrayList<>();
+                FloatLiteralNode float_to_compare = (FloatLiteralNode) node.stmt;
+                for (ExpressionNode i : array.components) {
+                    lst_of_float.add((FloatLiteralNode) i);
+                }
+                List<ExpressionNode> lst3 = new ArrayList<>();
+
+                switch (node.condition.value) {
+                    case "!=" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value != float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                    case "==" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value == float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                    case ">=" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value >= float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                    case "<=" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value <= float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                    case "<" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value < float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                    case ">" :
+                        for (FloatLiteralNode i : lst_of_float){
+                            if (i.value > float_to_compare.value){
+                                lst3.add(i);
+                            };
+                        }
+                        return map(lst3, new Object[0], visitor);
+                }
+                break;
+
+            case "StringLiteralNode":
+                List<StringLiteralNode> lst_of_string = new ArrayList<>();
+                StringLiteralNode string_to_compare = (StringLiteralNode) node.stmt;
+                for (ExpressionNode i : array.components) {
+                    lst_of_string.add((StringLiteralNode) i);
+                }
+                List<ExpressionNode> lst2 = new ArrayList<>();
+
+                switch (node.condition.value) {
+                    case "!=" :
+                        for (StringLiteralNode i : lst_of_string){
+                            if (!Objects.equals(i.value, string_to_compare.value)){
+                                lst2.add(i);
+                            };
+                        }
+                        return map(lst2, new Object[0], visitor);
+                    case "==" :
+                        for (StringLiteralNode i : lst_of_string){
+                            if (Objects.equals(i.value, string_to_compare.value)){
+                                lst2.add(i);
+                            };
+                        }
+                        return map(lst2, new Object[0], visitor);
+                }
+                break;
+
+        }
+        return new Object[0];
+
+
+
+    }
     // ---------------------------------------------------------------------------------------------
 
     private Object binaryExpression (BinaryExpressionNode node)
@@ -475,6 +625,7 @@ public final class Interpreter
         else if (node.falseStatement != null)
             get(node.falseStatement);
         return null;
+
     }
 
     // ---------------------------------------------------------------------------------------------

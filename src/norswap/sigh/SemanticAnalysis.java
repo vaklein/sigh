@@ -119,6 +119,7 @@ public final class SemanticAnalysis
         walker.register(ReferenceNode.class,            PRE_VISIT,  analysis::reference);
         walker.register(ConstructorNode.class,          PRE_VISIT,  analysis::constructor);
         walker.register(ArrayLiteralNode.class,         PRE_VISIT,  analysis::arrayLiteral);
+        walker.register(ListComprehensionNode.class,    PRE_VISIT,  analysis::lstComp);
         walker.register(ParenthesizedNode.class,        PRE_VISIT,  analysis::parenthesized);
         walker.register(FieldAccessNode.class,          PRE_VISIT,  analysis::fieldAccess);
         walker.register(ArrayAccessNode.class,          PRE_VISIT,  analysis::arrayAccess);
@@ -262,8 +263,73 @@ public final class SemanticAnalysis
 
     // ---------------------------------------------------------------------------------------------
 
+    private void lstComp (ListComprehensionNode node)
+    {
+        System.out.println("----");
+        System.out.println(node);
+        System.out.println(node.ref1);
+        System.out.println(node.ref2);
+        System.out.println(node.lst);
+
+        System.out.println(1);
+        System.out.println("----");
+        System.out.println(node);
+        ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
+
+        R.rule(node, "type")
+//            .using(node, "node")
+            .by(r -> {
+                System.out.println("ici");
+                if (!Objects.equals(node.ref1, node.ref2)) {
+                    r.errorFor("not two same variable", node);
+                    System.out.println("error");
+                }
+                if (!Objects.equals(node.ref1, node.ref3)) {
+                    r.errorFor("not two same variable", node);
+                    System.out.println("error");
+                }
+                if (!Objects.equals(node.condition.value, "==") &&
+                    !Objects.equals(node.condition.value, "!=") &&
+                    !Objects.equals(node.condition.value, "<=") &&
+                    !Objects.equals(node.condition.value, ">=") &&
+                    !Objects.equals(node.condition.value, "<") &&
+                    !Objects.equals(node.condition.value, ">")) {
+
+                    r.errorFor("wrong condition", node);
+                    System.out.println("error");
+                }
+                System.out.println("ici2");
+//                ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
+                String t = array.components.get(0).getClass().getTypeName();
+                if (!t.equals(node.stmt.getClass().getTypeName())){
+                    r.errorFor("error in type in the condition", node);
+                }
+                if (node.stmt.getClass().getTypeName() == "StringLiteralNode" &&
+                    (!Objects.equals(node.condition.value, "==") ||
+                        !Objects.equals(node.condition.value, "!="))){
+                    r.errorFor("incpompactible condition with the type of the values", node);
+                }
+                for (int i = 0; i < array.components.size(); i++){
+                    if (!t.equals(array.components.get(i).getClass().getTypeName())){
+                        r.errorFor("The array don't have all the same type", node);
+                    };
+//                    System.out.println(array.components.get(i));
+                }
+                System.out.println("ici3");
+                r.set(0, node);
+            });
+    }
+
+
+
+
+
+    // ---------------------------------------------------------------------------------------------
+
     private void arrayLiteral (ArrayLiteralNode node)
     {
+        System.out.println("----");
+        System.out.println(node);
         if (node.components.size() == 0) { // []
             // Empty array: we need a type int to know the desired type.
 
@@ -286,6 +352,7 @@ public final class SemanticAnalysis
 
         Attribute[] dependencies =
             node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
+        System.out.println("coucou");
 
         R.rule(node, "type")
         .using(dependencies)
@@ -443,7 +510,7 @@ public final class SemanticAnalysis
             }
         });
     }
-    // ---------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------+----------------------------------
     private void templateCall (TemplateCallNode node)
     {
         // Duplicate the declaration node from the scope

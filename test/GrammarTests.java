@@ -181,6 +181,21 @@ public class GrammarTests extends AutumnTestFixture {
 
     // ---------------------------------------------------------------------------------------------
 
+    @Test public void testLstComp() {
+        rule = grammar.statement;
+
+        successExpect("[x for x in [1, 2, 3] (x \"!=\" 3 )]",
+            new ListComprehensionNode(null, "x", "x",
+                                       new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))),
+                                                        "x", new StringLiteralNode(null, "!="), new IntLiteralNode(null,3)));
+//        successExpect("[x for x in [1, 2, 3] if x = 1]",
+//            new ListComprehensionNode(null, asList("[", "x", "for", "x", "in",
+//                new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))), "if", "x", "=", intlit(1), "]")));
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     @Test public void testStatements() {
         rule = grammar.statement;
 

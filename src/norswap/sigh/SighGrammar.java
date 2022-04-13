@@ -48,10 +48,12 @@ public class SighGrammar extends Grammar
     public rule RANGLE          = word(">");
     public rule AMP_AMP         = word("&&");
     public rule BAR_BAR         = word("||");
+    public rule BAR             = word("|");
     public rule BANG            = word("!");
     public rule DOT             = word(".");
     public rule DOLLAR          = word("$");
     public rule COMMA           = word(",");
+    public rule SPACE           = word(" ");
 
     public rule _var            = reserved("var");
     public rule _fun            = reserved("fun");
@@ -59,13 +61,25 @@ public class SighGrammar extends Grammar
     public rule _if             = reserved("if");
     public rule _else           = reserved("else");
     public rule _while          = reserved("while");
+    public rule _for            = reserved("for");
     public rule _template       = reserved("template");
     public rule _switch         = reserved("switch");
     public rule _case           = reserved("case");
     public rule _return         = reserved("return");
+    public rule _in             = reserved("in");
 
     public rule number =
         seq(opt('-'), choice('0', digit.at_least(1)));
+
+    public rule condition =
+        choice("==", "!=", "<=", ">=", "<", ">")
+            .push($ -> new StringLiteralNode($.span(), BANG_EQUAL))
+            .word();
+
+//    public rule condition =
+//        choice(EQUALS_EQUALS, BANG_EQUAL, LANGLE_EQUAL, RANGLE_EQUAL, LANGLE, RANGLE)
+//            .push($ -> new StringLiteralNode($.span(), BANG_EQUAL))
+//            .word();
 
     public rule integer =
         number
@@ -116,9 +130,15 @@ public class SighGrammar extends Grammar
         this.expression.sep(0, COMMA)
         .as_list(ExpressionNode.class));
 
+
+
     public rule array =
         seq(LSQUARE, expressions, RSQUARE)
         .push($ -> new ArrayLiteralNode($.span(), $.$[0]));
+
+    public rule lst_comp =
+        seq(LSQUARE, identifier, _for, identifier, _in, array, seq(LPAREN, identifier, string, choice(integer, string, floating), RPAREN),  RSQUARE) //if_stmt.at_least(0)
+            .push($ -> new ListComprehensionNode($.span(), $.$[0],$.$[1], $.$[2], $.$[3], $.$[4], $.$[5]));
 
     public rule basic_expression = choice(
         constructor,
@@ -127,7 +147,8 @@ public class SighGrammar extends Grammar
         integer,
         string,
         paren_expression,
-        array);
+        array,
+        lst_comp);
 
     public rule function_args =
         seq(LPAREN, expressions, RPAREN);
@@ -228,7 +249,8 @@ public class SighGrammar extends Grammar
         this.switch_stmt,
         this.while_stmt,
         this.return_stmt,
-        this.expression_stmt));
+        this.expression_stmt,
+        this.lst_comp));
 
     public rule statements =
         statement.at_least(0)

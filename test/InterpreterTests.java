@@ -347,6 +347,26 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     @Test
+    public void testLstComp () {
+        rule = grammar.root;
+
+        // test int
+        checkExpr("[x for x in [1, 2, 3, 4] (x \"!=\" 5) ]", new Object[]{1L, 2L, 3L, 4L});
+        checkExpr("[x for x in [1, 2, 3, 4] (x \"!=\" 4) ]", new Object[]{1L, 2L, 3L});
+        checkExpr("[x for x in [1, 2, 3, 4] (x \"!=\" 3) ]", new Object[]{1L, 2L, 4L});
+        checkExpr("[x for x in [1, 2, 3, 4] (x \">\" 3) ]", new Object[]{4L});
+        checkExpr("[x for x in [1, 2, 3, 4] (x \">=\" 3) ]", new Object[]{3L, 4L});
+
+        //String
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"3\") ]", new Object[]{"1", "2", "4"});
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
     public void testInference () {
         check("var array: Int[] = []", null);
         check("var array: String[] = []", null);
@@ -365,6 +385,7 @@ public final class InterpreterTests extends TestFixture {
 
     @Test public void testUnconditionalReturn()
     {
+        rule = grammar.root;
         check("fun f(): Int { if (true) return 1 else return 2 } ; return f()", 1L);
     }
 
