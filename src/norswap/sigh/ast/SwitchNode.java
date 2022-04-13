@@ -7,7 +7,7 @@ import java.util.List;
 public final class SwitchNode extends StatementNode
 {
     public final ExpressionNode argument;
-    public final List<StatementNode> cases;
+    public final List<CaseNode> cases;
 
     public SwitchNode (Span span, Object argument, Object cases) {
         super(span);
@@ -18,8 +18,8 @@ public final class SwitchNode extends StatementNode
 
     @Override public String contents ()
     {
-        String condition = this.contents();
-        String candidate = String.format("switch %s ...", argument);
+        String condition = this.argument.contents();
+        String candidate = String.format("switch %s ...", condition);
 
         return candidate;
     }
