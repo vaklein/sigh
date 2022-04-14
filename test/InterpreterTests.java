@@ -360,8 +360,19 @@ public final class InterpreterTests extends TestFixture {
         //String
         checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
         checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"3\") ]", new Object[]{"1", "2", "4"});
-        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
-        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]", new Object[]{"1", "2", "3", "4"});
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"==\" \"4\") ]", new Object[]{"4"});
+
+        //Float
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \"!=\" 5.2) ]", new Object[]{1.2, 2.2, 3.2, 4.2});
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \"!=\" 4.2) ]", new Object[]{1.2, 2.2, 3.2});
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \"!=\" 3.2) ]", new Object[]{1.2, 2.2, 4.2});
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \">\" 3.2) ]", new Object[]{4.2});
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \">=\" 3.2) ]", new Object[]{3.2, 4.2});
+
+        // Test get empty list
+        checkExpr("[x for x in [1.2, 2.2, 3.2, 4.2] (x \">=\" 6.2) ]", new Object[]{});
+        checkExpr("[x for x in [1, 2, 3, 4] (x \"<\" -5) ]", new Object[]{});
+        checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"==\" \"10\") ]", new Object[]{});
     }
 
     // ---------------------------------------------------------------------------------------------

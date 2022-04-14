@@ -188,9 +188,18 @@ public class GrammarTests extends AutumnTestFixture {
             new ListComprehensionNode(null, "x", "x",
                                        new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))),
                                                         "x", new StringLiteralNode(null, "!="), new IntLiteralNode(null,3)));
-//        successExpect("[x for x in [1, 2, 3] if x = 1]",
-//            new ListComprehensionNode(null, asList("[", "x", "for", "x", "in",
-//                new ArrayLiteralNode(null, asList(intlit(1), intlit(2), intlit(3))), "if", "x", "=", intlit(1), "]")));
+
+        successExpect("[x for x in [\"1\", \"2\", \"3\"] (x \"==\" \"3\" )]",
+            new ListComprehensionNode(null, "x", "x",
+                new ArrayLiteralNode(null, asList( new StringLiteralNode(null,"1"),
+                    new StringLiteralNode(null,"2"),  new StringLiteralNode(null,"3"))),
+                "x", new StringLiteralNode(null, "=="), new StringLiteralNode(null,"3")));
+
+        successExpect("[x for x in [1.2, 2.2, 3.2] (x \"<\" 3.2 )]",
+            new ListComprehensionNode(null, "x", "x",
+                new ArrayLiteralNode(null, asList(floatlit(1.2), floatlit(2.2), floatlit(3.2))),
+                "x", new StringLiteralNode(null, "<"), new FloatLiteralNode(null,3.2)));
+
 
     }
 

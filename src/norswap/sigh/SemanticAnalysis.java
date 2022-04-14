@@ -279,17 +279,15 @@ public final class SemanticAnalysis
         ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
 
         R.rule(node, "type")
-//            .using(node, "node")
             .by(r -> {
-                System.out.println("ici");
-                if (!Objects.equals(node.ref1, node.ref2)) {
-                    r.errorFor("not two same variable", node);
-                    System.out.println("error");
+
+                // Test the name of the variable
+                if (!Objects.equals(node.ref1, node.ref2) && !Objects.equals(node.ref1, node.ref3)) {
+                    r.errorFor("The variables don't have all the same name", node);
                 }
-                if (!Objects.equals(node.ref1, node.ref3)) {
-                    r.errorFor("not two same variable", node);
-                    System.out.println("error");
-                }
+
+
+                // Test that the symbole of the condition is right
                 if (!Objects.equals(node.condition.value, "==") &&
                     !Objects.equals(node.condition.value, "!=") &&
                     !Objects.equals(node.condition.value, "<=") &&
@@ -297,28 +295,35 @@ public final class SemanticAnalysis
                     !Objects.equals(node.condition.value, "<") &&
                     !Objects.equals(node.condition.value, ">")) {
 
-                    r.errorFor("wrong condition", node);
-                    System.out.println("error");
+                    r.errorFor("Wrong conditions symbole", node);
                 }
-                System.out.println("ici2");
-//                ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
-                String t = array.components.get(0).getClass().getTypeName();
-                if (!t.equals(node.stmt.getClass().getTypeName())){
-                    r.errorFor("error in type in the condition", node);
-                }
-                if (node.stmt.getClass().getTypeName() == "StringLiteralNode" &&
+
+                // If the type of the elem in the condition is a String, then only the condition != and == are accepted
+                if (node.stmt.getClass().getTypeName().equals("StringLiteralNode") &&
                     (!Objects.equals(node.condition.value, "==") ||
                         !Objects.equals(node.condition.value, "!="))){
                     r.errorFor("incpompactible condition with the type of the values", node);
                 }
-                for (int i = 0; i < array.components.size(); i++){
-                    if (!t.equals(array.components.get(i).getClass().getTypeName())){
-                        r.errorFor("The array don't have all the same type", node);
-                    };
-//                    System.out.println(array.components.get(i));
+
+                // if the array is not empty
+                if (array.components.size() == 0) {
+                    r.errorFor("The array is empty", node);
                 }
-                System.out.println("ici3");
+                // test that the type of the elem in the array are the same as the elem in the condition
+                String t = array.components.get(0).getClass().getTypeName();
+                if (!t.equals(node.stmt.getClass().getTypeName())) {
+                    r.errorFor("the elem in the conditon don't have the same type as the elem in the array", node);
+                }
+
+                // test if all the elem in the array are of the same type
+                for (int i = 0; i < array.components.size(); i++) {
+                    if (!t.equals(array.components.get(i).getClass().getTypeName())) {
+                        r.errorFor("The array don't have all the same type", node);
+                    }
+                    ;
+                }
                 r.set(0, node);
+
             });
     }
 

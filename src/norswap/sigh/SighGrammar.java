@@ -137,7 +137,7 @@ public class SighGrammar extends Grammar
         .push($ -> new ArrayLiteralNode($.span(), $.$[0]));
 
     public rule lst_comp =
-        seq(LSQUARE, identifier, _for, identifier, _in, array, seq(LPAREN, identifier, string, choice(integer, string, floating), RPAREN),  RSQUARE) //if_stmt.at_least(0)
+        seq(LSQUARE, identifier, _for, identifier, _in, array, seq(LPAREN, identifier, string, choice(floating, integer, string), RPAREN),  RSQUARE) //if_stmt.at_least(0)
             .push($ -> new ListComprehensionNode($.span(), $.$[0],$.$[1], $.$[2], $.$[3], $.$[4], $.$[5]));
 
     public rule basic_expression = choice(

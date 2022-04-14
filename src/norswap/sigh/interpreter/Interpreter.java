@@ -158,13 +158,11 @@ public final class Interpreter
 
     private Object[] LstComp (ListComprehensionNode node) {
         ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
-        // cast to the right type to compare value  ////
 
-        String t = node.stmt.getClass().getTypeName().split("\\.")[3];
-        if (node.stmt.getClass().getTypeName().equals("IntLiteralNode")) {
-            int x = 5;
-        }
-        switch (node.stmt.getClass().getTypeName().split("\\.")[3]) {
+        // cast to the right type to compare value
+        String t = node.stmt.getClass().getTypeName().split("\\.")[3]; // get the type of the elements
+
+        switch (t) {
             case "IntLiteralNode":
 
                 List<IntLiteralNode> lst_of_int = new ArrayList<>();
@@ -301,7 +299,7 @@ public final class Interpreter
                 break;
 
         }
-        return new Object[0];
+        return new Object[]{};
 
 
 
