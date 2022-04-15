@@ -3,7 +3,6 @@ package norswap.sigh.ast;
 import norswap.autumn.positions.Span;
 import norswap.sigh.types.VoidType;
 import norswap.utils.Util;
-import javax.xml.soap.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

@@ -19,8 +19,10 @@ public final class SwitchNode extends StatementNode
     @Override public String contents ()
     {
         String condition = this.argument.contents();
-        String candidate = String.format("switch %s ...", condition);
+        String candidate = String.format("switch(%s) ...", condition);
 
-        return candidate;
+        return candidate.length() <= contentsBudget()
+            ? candidate
+            : "switch(?) ...";
     }
 }

@@ -347,6 +347,14 @@ public final class InterpreterTests extends TestFixture {
     // ---------------------------------------------------------------------------------------------
 
     @Test
+    public void testSwitchCase () {
+        rule = grammar.root;
+
+        check("switch(1) { case(1): return 1, case(2): return 2}", 1L);
+    }
+
+    // ---------------------------------------------------------------------------------------------
+    @Test
     public void testLstComp () {
         rule = grammar.root;
 
