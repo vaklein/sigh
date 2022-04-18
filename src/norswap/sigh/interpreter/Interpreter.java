@@ -83,6 +83,7 @@ public final class Interpreter
         // statements
         visitor.register(ExpressionStatementNode.class,  this::expressionStmt);
         visitor.register(IfNode.class,                   this::ifStmt);
+        visitor.register(SwitchNode.class,               this::switchStmt);
         visitor.register(WhileNode.class,                this::whileStmt);
         visitor.register(ReturnNode.class,               this::returnStmt);
 
@@ -305,7 +306,16 @@ public final class Interpreter
 
     }
     // ---------------------------------------------------------------------------------------------
-
+    private Void switchStmt (SwitchNode node)
+    {
+        System.out.println("couc");
+        for (CaseNode i: node.cases){
+            System.out.println(node.argument + "-" + i.condition);
+            if (node.argument == i.condition) get(i.trueStatement);
+        }
+        return null;
+    }
+    // ---------------------------------------------------------------------------------------------
     private Object binaryExpression (BinaryExpressionNode node)
     {
         Type leftType  = reactor.get(node.left, "type");

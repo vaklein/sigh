@@ -1,6 +1,7 @@
 package norswap.sigh;
 
 import norswap.sigh.ast.*;
+import norswap.sigh.interpreter.Void;
 import norswap.sigh.scopes.DeclarationContext;
 import norswap.sigh.scopes.DeclarationKind;
 import norswap.sigh.scopes.RootScope;
@@ -151,10 +152,10 @@ public final class SemanticAnalysis
         // statements
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
         walker.register(IfNode.class,                   PRE_VISIT,  analysis::ifStmt);
-        walker.register(SwitchNode.class,               PRE_VISIT,  analysis::switchStmt);
-        walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
         walker.register(WhileNode.class,                PRE_VISIT,  analysis::whileStmt);
         walker.register(ReturnNode.class,               PRE_VISIT,  analysis::returnStmt);
+        walker.register(SwitchNode.class,               PRE_VISIT,  analysis::switchStmt);
+        walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
 
         walker.registerFallback(POST_VISIT, node -> {});
 
@@ -1012,21 +1013,15 @@ public final class SemanticAnalysis
 
     private void switchStmt (SwitchNode node) {
         R.rule()
-            .using(node.argument, "argument")
+            .using(node.argument, "type")
             .by(r -> {
-                ExpressionNode argument = r.get(0);
-                if (argument == null) {
+                if (node.argument == null) {
                     r.error("Argument is null",
-                        node.argument);
+                        null);
                 }
-            });
-        R.rule()
-            .using(node.cases, "cases")
-            .by(r -> {
-                List<CaseNode> list = r.get(0);
-                if (list == null) {
-                    r.error("Case is null",
-                        node.cases);
+                if (node.cases == null) {
+                    r.error("Cases are null",
+                        null);
                 }
             });
     }
@@ -1038,8 +1033,8 @@ public final class SemanticAnalysis
             .using(node.condition, "type")
             .by(r -> {
                 Type type = r.get(0);
-                if (!(type instanceof BoolType)) {
-                    r.error("Case statement with a non-boolean condition of type: " + type,
+                if ((type instanceof VoidType)) {
+                    r.error("Case statement with a void value: " + type,
                         node.condition);
                 }
             });
