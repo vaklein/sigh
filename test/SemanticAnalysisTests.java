@@ -170,6 +170,47 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     // ---------------------------------------------------------------------------------------------
 
+    @Test public void testLstComp() {
+
+        // Success
+        successInput("[x for x in [1, 2, 3, 4] (x \"!=\" 5) ]");
+        successInput("[x for x in [1, 2, 3, 4] (x \"!=\" 4) ]");
+        successInput("[x for x in [1, 2, 3, 4] (x \">\" 3) ]");
+        successInput("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"!=\" \"5\") ]");
+        successInput("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"==\" \"4\") ]");
+        successInput("[x for x in [1.2, 2.2, 3.2, 4.2] (x \"!=\" 4.2) ]");
+        successInput("[x for x in [1.2, 2.2, 3.2, 4.2] (x \">\" 3.2) ]");
+        successInput("[x for x in [1.2, 2.2, 3.2, 4.2] (x \">=\" 3.2) ]");
+
+        // Failures
+        failureInputWith("[x for y in [1, 2, 3, 4] (x \"!=\" 5) ]",
+            "The variables don't have all the same name");
+        failureInputWith("[y for y in [1, 2, 3, 4] (x \"!=\" 5) ]",
+            "The variables don't have all the same name");
+        failureInputWith("[x for x in [1, 2, 3, 4] (y \"!=\" 5) ]",
+            "The variables don't have all the same name");
+        failureInputWith("[x for y in [1, 2, 3, 4] (z \"!=\" 5) ]",
+            "The variables don't have all the same name");
+
+        failureInputWith("[x for x in [1, 2, 3, 4] (x \"!\" 5) ]",
+            "Wrong conditions symbole");
+
+        failureInputWith("[x for x in [] (x \"!=\" 5) ]",
+            "The array is empty");
+
+        failureInputWith("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"<\" \"5\") ]",
+            "incpompactible condition with the type of the values");
+
+        failureInputWith("[x for x in [1, 2, 3, 4] (x \"!=\" \"4\") ]",
+            "the elem in the conditon don't have the same type as the elem in the array");
+
+        failureInputWith("[x for x in [1, \"4\", 3, 4] (x \"!=\" 4) ]",
+            "The array don't have all the same type");
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
     @Test public void testRootAndBlock () {
         successInput("return");
         successInput("return 1");

@@ -11,8 +11,6 @@ public class ArrayLiteralNode extends ExpressionNode
     @SuppressWarnings("unchecked")
     public ArrayLiteralNode (Span span, Object components) {
         super(span);
-        System.out.println("components");
-        System.out.println(components);
         this.components = Util.cast(components, List.class);
     }
 

@@ -267,22 +267,13 @@ public final class SemanticAnalysis
 
     private void lstComp (ListComprehensionNode node)
     {
-        System.out.println("----");
-        System.out.println(node);
-        System.out.println(node.ref1);
-        System.out.println(node.ref2);
-        System.out.println(node.lst);
-
-        System.out.println(1);
-        System.out.println("----");
-        System.out.println(node);
         ArrayLiteralNode array = (ArrayLiteralNode) node.lst;
 
         R.rule(node, "type")
             .by(r -> {
 
                 // Test the name of the variable
-                if (!Objects.equals(node.ref1, node.ref2) && !Objects.equals(node.ref1, node.ref3)) {
+                if (!Objects.equals(node.ref1, node.ref2) || !Objects.equals(node.ref1, node.ref3)) {
                     r.errorFor("The variables don't have all the same name", node);
                 }
 
@@ -295,35 +286,34 @@ public final class SemanticAnalysis
                     !Objects.equals(node.condition.value, "<") &&
                     !Objects.equals(node.condition.value, ">")) {
 
-                    r.errorFor("Wrong conditions symbole", node);
+                    r.errorFor("Wrong conditions symbole", node.condition.value);
                 }
-
                 // If the type of the elem in the condition is a String, then only the condition != and == are accepted
-                if (node.stmt.getClass().getTypeName().equals("StringLiteralNode") &&
-                    (!Objects.equals(node.condition.value, "==") ||
-                        !Objects.equals(node.condition.value, "!="))){
-                    r.errorFor("incpompactible condition with the type of the values", node);
+                if (node.stmt.getClass().getTypeName().equals("norswap.sigh.ast.StringLiteralNode") &&
+                    !(Objects.equals(node.condition.value, "==") ||
+                        Objects.equals(node.condition.value, "!="))){
+                    r.errorFor("incpompactible condition with the type of the values", node.stmt.getClass().getTypeName());
                 }
 
-                // if the array is not empty
+                // if the array is  empty
                 if (array.components.size() == 0) {
-                    r.errorFor("The array is empty", node);
+                    r.errorFor("The array is empty", array.components);
                 }
-                // test that the type of the elem in the array are the same as the elem in the condition
-                String t = array.components.get(0).getClass().getTypeName();
-                if (!t.equals(node.stmt.getClass().getTypeName())) {
-                    r.errorFor("the elem in the conditon don't have the same type as the elem in the array", node);
-                }
-
-                // test if all the elem in the array are of the same type
-                for (int i = 0; i < array.components.size(); i++) {
-                    if (!t.equals(array.components.get(i).getClass().getTypeName())) {
-                        r.errorFor("The array don't have all the same type", node);
+                else {
+                    // test that the type of the elem in the array are the same as the elem in the condition
+                    String t = array.components.get(0).getClass().getTypeName();
+                    if (!t.equals(node.stmt.getClass().getTypeName())) {
+                        r.errorFor("the elem in the conditon don't have the same type as the elem in the array", node);
                     }
-                    ;
+
+                    // test if all the elem in the array are of the same type
+                    for (int i = 0; i < array.components.size(); i++) {
+                        if (!t.equals(array.components.get(i).getClass().getTypeName())) {
+                            r.errorFor("The array don't have all the same type", node);
+                        }
+                    }
                 }
                 r.set(0, node);
-
             });
     }
 

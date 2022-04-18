@@ -27,18 +27,10 @@ public class ListComprehensionNode extends ExpressionNode
         this.ref3 = (String) ref3;
         this.condition = (StringLiteralNode) condition;
         this.stmt = stmt;
-        System.out.println(this.ref1);
-        System.out.println(ref2);
-        System.out.println(lst);
-        System.out.println(ref2);
-        System.out.println(condition);
-        System.out.println(((StringLiteralNode) condition).value);
-        System.out.println(stmt);
     }
 
     @Override public String contents ()
     {
-        System.out.println("enter");
         StringBuilder b = new StringBuilder("[");
         b.append(ref1);
         b.append(", ");
@@ -53,9 +45,6 @@ public class ListComprehensionNode extends ExpressionNode
         b.append(stmt);
         b.append(")");
         b.append(']');
-        System.out.println("b");
-        System.out.println("icii");
-        System.out.println(b);
         return b.toString();
     }
 }
