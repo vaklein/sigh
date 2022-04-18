@@ -193,11 +193,11 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput(
             "fun add (a: Int, b: Int): Int { return a + b } " +
             "return add(4, 7)");
+        /*
         //Template test
         successInput(
             "template test (a: Void): Int { return a } " +
                 "return test{4}");
-        /*
         successInput(
             "template test (a: Int, b: Void): Int { return a + b } " +
                 "return test[4, 7]");*/
@@ -299,13 +299,16 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     @Test public void testUnconditionalReturn()
     {
-        //successInput("fun f(): Int { if (true) return 1 else return 2 } ; return f()");
-        successInput("switch(1) { case(1): return 1, case(2): return 2}");
-        successInput("fun f(x:Int): Int { switch(x) { case(1): return 1, case(2): return 2} return 3} ; return f(1)");
+        successInput("fun f(): Int { if (true) return 1 else return 2 } ; return f()");
         // TODO: would be nice if this pinpointed the if-statement as missing the return,
         //   not the whole function declaration
-        //failureInputWith("fun f(): Int { if (true) return 1 } ; return f()",
-            //"Missing return in function");
+        failureInputWith("fun f(): Int { if (true) return 1 } ; return f()",
+            "Missing return in function");
+    }
+    @Test public void switchCase()
+    {
+        successInput("switch(1) { case(1): return 1, case(2): return 2}");
+        successInput("fun f(x:Int): Int { switch(x) { case(1): return 1, case(2): return 2} return 3} ; return f(1)");
     }
 
     // ---------------------------------------------------------------------------------------------
