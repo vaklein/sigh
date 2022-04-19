@@ -336,6 +336,7 @@ public final class InterpreterTests extends TestFixture {
 
     @Test
     public void testIfWhile () {
+        rule = grammar.root;
         check("if (true) return 1 else return 2", 1L);
         check("if (false) return 1 else return 2", 2L);
         check("if (false) return 1 else if (true) return 2 else return 3 ", 2L);
@@ -348,7 +349,22 @@ public final class InterpreterTests extends TestFixture {
 
     @Test
     public void testSwitchCase () {
-        //check("switch(1) { case(1): return 1, case(2): return 2}", 1L);
+        rule = grammar.root;
+        check("switch(1) { case(1): return 1, case(2): return 2}", 1L);
+        check("switch(2) { case(1): return 1, case(2): return 2}", 2L);
+        check("switch(5) { case(1): return 1, case(2): return 2, case(5): return 5}", 5L);
+        check("switch(1) { case(1): return 1, case(2): return 2, case(3): return 5}", 1L);
+        check("switch(3) { case(1): return 1, case(2): return 2}", null);
+
+        check("switch(\"1\") { case(\"1\"): return 1, case(\"2\"): return 2}", 1L);
+        check("switch(\"3\") { case(\"1\"): return 1, case(\"2\"): return 2}", null);
+
+        check("switch(1.2) { case(1.1): return \"1\", case(1.2): return \"2\"}", "2");
+
+        check("switch([1,2]) { case([1]): return \"1\", case([1,2]): return \"2\"}", "2");
+        check("switch([1,2]) { case([1]): return \"1\", case([1,2,3]): return \"2\"}", null);
+
+//        check("fun f(x: Int): Int {switch(x) { case(1): return 1, case(2): return 2} return -1}; return f(2)", 1L);
     }
 
     // ---------------------------------------------------------------------------------------------

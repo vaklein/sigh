@@ -242,6 +242,7 @@ public class BytecodeTests
         check("var x: Float = 1 ;" + printx, "1.0");
         check("var x: Float = 1 ;" + printx + "x = 2 ;" + printx, "1.0\n2.0");
     }
+    //TODO decomment
 /*
     @Test public void testIfWhile() {
         check("if 1 == 1 " + printa, "a");

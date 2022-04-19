@@ -43,6 +43,8 @@ public class GrammarTests extends AutumnTestFixture {
 
     @Test
     public void testNumericBinary () {
+        rule = grammar.expression;
+
         successExpect("1 + 2", new BinaryExpressionNode(null, intlit(1), ADD, intlit(2)));
         successExpect("2 - 1", new BinaryExpressionNode(null, intlit(2), SUBTRACT,  intlit(1)));
         successExpect("2 * 3", new BinaryExpressionNode(null, intlit(2), MULTIPLY, intlit(3)));

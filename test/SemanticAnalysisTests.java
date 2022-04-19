@@ -349,6 +349,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
     @Test public void switchCase()
     {
         successInput("switch(1) { case(1): return 1, case(2): return 2}");
+        successInput("switch(1) { case(1): return 1, case(2): return 2}");
         successInput("fun f(x:Int): Int { switch(x) { case(1): return 1, case(2): return 2} return 3} ; return f(1)");
     }
 

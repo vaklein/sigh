@@ -308,10 +308,10 @@ public final class Interpreter
     // ---------------------------------------------------------------------------------------------
     private Void switchStmt (SwitchNode node)
     {
-        System.out.println("couc");
         for (CaseNode i: node.cases){
-            System.out.println(node.argument + "-" + i.condition);
-            if (node.argument == i.condition) get(i.trueStatement);
+            ParenthesizedNode p = (ParenthesizedNode) i.condition;
+            if (node.argument.equals(p.expression))
+                get(i.trueStatement);
         }
         return null;
     }
