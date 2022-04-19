@@ -76,6 +76,8 @@ public class GrammarTests extends AutumnTestFixture {
                 intlit(1)))));
     }
 
+
+
     // ---------------------------------------------------------------------------------------------
 
     @Test public void testArrayStructAccess () {
