@@ -326,8 +326,6 @@ public final class SemanticAnalysis
 
     private void arrayLiteral (ArrayLiteralNode node)
     {
-        System.out.println("----");
-        System.out.println(node);
         if (node.components.size() == 0) { // []
             // Empty array: we need a type int to know the desired type.
 
@@ -350,7 +348,6 @@ public final class SemanticAnalysis
 
         Attribute[] dependencies =
             node.components.stream().map(it -> it.attr("type")).toArray(Attribute[]::new);
-        System.out.println("coucou");
 
         R.rule(node, "type")
         .using(dependencies)
