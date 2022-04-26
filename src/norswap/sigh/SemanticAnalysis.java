@@ -515,12 +515,9 @@ public final class SemanticAnalysis
         List<ParameterNode> liste = test.parameters;
         System.out.println("node_arg "+node.arguments.get(0).getClass().getSimpleName());
         for (int i =0; i < liste.size(); i++){
-            ParameterNode un = liste.get(i);
-
             String type = node.arguments.get(i).getClass().getSimpleName();
             type = type.split("L")[0];
-
-            liste.set(i, new ParameterNode(un.span, un.name, new SimpleTypeNode(un.span, type+"Type")));
+            liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type+"Type");
         }
         //Create new decleration node with name "bis"
         TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
@@ -534,8 +531,6 @@ public final class SemanticAnalysis
         this.inferenceContext = node;
         Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
         dependencies[0] = node.template.attr("type");
-        System.out.println("3");
-
         forEachIndexed(node.arguments, (i, arg) -> {
             System.out.println("4");
             dependencies[i + 1] = arg.attr("type");
