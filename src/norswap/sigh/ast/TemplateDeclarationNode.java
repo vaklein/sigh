@@ -7,7 +7,7 @@ import java.util.List;
 public class TemplateDeclarationNode extends DeclarationNode
 {
     public final String name;
-    public final List<ParameterNode> parameters;
+    public List<ParameterNode> parameters;
     public final TypeNode returnType;
     public final BlockNode block;
 
