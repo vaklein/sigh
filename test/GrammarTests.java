@@ -242,4 +242,15 @@ public class GrammarTests extends AutumnTestFixture {
     }
 
     // ---------------------------------------------------------------------------------------------
+    @Test public void forStatements() {
+        rule = grammar.statement;
+
+        successExpect("for (var i : Int = 1 , i < 3 , i = i+1) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(1)),
+            new BinaryExpressionNode(null, new ReferenceNode(null, "i"), LOWER, intlit(3)),
+            new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), ADD, intlit(1))),
+            new BlockNode(null, asList(new ReturnNode(null, null)))));
+    }
+
+    // ---------------------------------------------------------------------------------------------
 }

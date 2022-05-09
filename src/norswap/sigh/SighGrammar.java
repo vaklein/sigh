@@ -249,6 +249,7 @@ public class SighGrammar extends Grammar
         this.if_stmt,
         this.switch_stmt,
         this.while_stmt,
+        this.for_stmt,
         this.return_stmt,
         this.expression_stmt,
         this.lst_comp));
@@ -310,6 +311,10 @@ public class SighGrammar extends Grammar
     public rule while_stmt =
         seq(_while, expression, statement)
         .push($ -> new WhileNode($.span(), $.$[0], $.$[1]));
+
+    public rule for_stmt =
+        seq(_for, LPAREN, var_decl, COMMA, expression, COMMA, assignment_expression, RPAREN, statement)
+            .push($ -> new ForNode($.span(), $.$[0], $.$[1], $.$[2], $.$[3]));
 
     public rule return_stmt =
         seq(_return, expression.or_push_null())
