@@ -153,6 +153,7 @@ public final class SemanticAnalysis
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
         walker.register(IfNode.class,                   PRE_VISIT,  analysis::ifStmt);
         walker.register(WhileNode.class,                PRE_VISIT,  analysis::whileStmt);
+        walker.register(ForNode.class,                PRE_VISIT,  analysis::forStmt);
         walker.register(ReturnNode.class,               PRE_VISIT,  analysis::returnStmt);
         walker.register(SwitchNode.class,               PRE_VISIT,  analysis::switchStmt);
         walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
@@ -1041,6 +1042,27 @@ public final class SemanticAnalysis
         R.rule(node, "returns")
             .using(deps)
             .by(r -> r.set(0, deps.length == 2 && Arrays.stream(deps).allMatch(r::get)));
+    }
+
+    private void forStmt (ForNode node) {
+        R.rule()
+            .using(node.condition, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof BoolType)) {
+                    r.error("For statement with a non-boolean condition of type: " + type,
+                        node.condition);
+                }
+            });
+        R.rule()
+            .using(node.variable, "type")
+            .by(r -> {
+                Type type = r.get(0);
+                if (!(type instanceof IntType) && !(type instanceof FloatType)) {
+                    r.error("For statement with variable of type different than int or float: " + type,
+                        node.variable);
+                }
+            });
     }
 
     // ---------------------------------------------------------------------------------------------

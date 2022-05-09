@@ -347,6 +347,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         failureInputWith("fun f(): Int { if (true) return 1 } ; return f()",
             "Missing return in function");
     }
+    // ---------------------------------------------------------------------------------------------
     @Test public void switchCase()
     {
         successInput("switch(1) { case(1): return 1, case(2): return 2}");
@@ -355,4 +356,8 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
     }
 
     // ---------------------------------------------------------------------------------------------
+    @Test public void forStmt()
+    {
+        successInput("for (var i: Int = 0 , i < 4 , i = i + 1) {}");
+    }
 }
