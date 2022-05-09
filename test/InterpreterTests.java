@@ -249,11 +249,12 @@ public final class InterpreterTests extends TestFixture {
         rule = grammar.root;
 
         //Template tests
-        /*
+
         check(
             "template test (x: Int):Int { return x }" +
                 "return test{1}",
             1L);
+        /*
         check(
             "template test (x: String, y: String):String { return x+y }" +
                 "return test[\"1\", \"3\"]",
