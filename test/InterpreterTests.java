@@ -339,6 +339,8 @@ public final class InterpreterTests extends TestFixture {
     public void testIfWhile () {
         rule = grammar.root;
         check("if (true) return 1 else return 2", 1L);
+        check("if (false) ? return 1 : return 2", 2L);
+        check("var a: Int = 5; var b: Int = 2; if (3!=2) ? return a+b : return 2", 7L);
         check("if (false) return 1 else return 2", 2L);
         check("if (false) return 1 else if (true) return 2 else return 3 ", 2L);
         check("if (false) return 1 else if (false) return 2 else return 3 ", 3L);

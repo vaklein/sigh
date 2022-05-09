@@ -50,6 +50,7 @@ public class SighGrammar extends Grammar
     public rule BAR_BAR         = word("||");
     public rule BAR             = word("|");
     public rule BANG            = word("!");
+    public rule INTERO            = word("?");
     public rule DOT             = word(".");
     public rule DOLLAR          = word("$");
     public rule COMMA           = word(",");
@@ -291,7 +292,7 @@ public class SighGrammar extends Grammar
         .push($ -> new StructDeclarationNode($.span(), $.$[0], $.$[1]));
 
     public rule if_stmt =
-        seq(_if, expression, statement, seq(_else, statement).or_push_null())
+        choice(seq(_if, expression, statement, seq(_else, statement).or_push_null()), seq(_if, expression, INTERO, statement, COLON, statement))
         .push($ -> new IfNode($.span(), $.$[0], $.$[1], $.$[2]));
 
     public rule case_expr =

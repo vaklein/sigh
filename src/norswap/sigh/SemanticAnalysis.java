@@ -26,8 +26,7 @@ import java.util.stream.IntStream;
 import static java.lang.String.format;
 import static norswap.sigh.ast.BinaryOperator.*;
 import static norswap.utils.Util.cast;
-import static norswap.utils.Vanilla.forEachIndexed;
-import static norswap.utils.Vanilla.list;
+import static norswap.utils.Vanilla.*;
 import static norswap.utils.visitors.WalkVisitType.POST_VISIT;
 import static norswap.utils.visitors.WalkVisitType.PRE_VISIT;
 
@@ -509,9 +508,10 @@ public final class SemanticAnalysis
     // -----------------------------------------------------------+----------------------------------
     private void templateCall (TemplateCallNode node)
     {
+        this.inferenceContext = node;
         //Duplicate the declaration node from the scope
         scope.declare("bis", scope.lookup("test").declaration);
-        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
         //Modify the paramters
         List<ParameterNode> liste = test.parameters;
         System.out.println(liste);
@@ -522,16 +522,17 @@ public final class SemanticAnalysis
         }
         //Create new decleration node with name "bis"
         test.parameters = liste;
+
 //        TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
 //        //On essaye de redeclare le nouveau template avec un nom different
-//        templateDecl(test2);
+//
 //
 //        //On recree une node qui va executer le nouveau template
 //        ExpressionNode template2 = Util.cast(new ReferenceNode(test2.span, "bis"), ExpressionNode.class);
 
-        node.template = Util.cast(new ReferenceNode(test.span, "bis"), ExpressionNode.class);
+        //node.template = Util.cast(new ReferenceNode(test.span, "bis"), ExpressionNode.class);
 
-        this.inferenceContext = node;
+
         Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
         dependencies[0] = node.template.attr("type");
         forEachIndexed(node.arguments, (i, arg) -> {

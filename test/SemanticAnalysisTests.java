@@ -308,6 +308,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
 
     @Test
     public void testIfWhile () {
+        successInput("if (true) ? return 1 : return 2");
         successInput("if (true) return 1 else return 2");
         successInput("if (false) return 1 else return 2");
         successInput("if (false) return 1 else if (true) return 2 else return 3 ");

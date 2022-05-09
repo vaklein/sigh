@@ -226,6 +226,9 @@ public class GrammarTests extends AutumnTestFixture {
             new ReturnNode(null, intlit(1)),
             new ReturnNode(null, intlit(2))));
 
+        successExpect("if true ? return 1 : return 2", new IfNode(null, new ReferenceNode(null, "true"),
+            new ReturnNode(null, intlit(1)),
+            new ReturnNode(null, intlit(2))));
         successExpect("if false return 1 else if true return 2 else return 3 ",
             new IfNode(null, new ReferenceNode(null, "false"),
                 new ReturnNode(null, intlit(1)),
