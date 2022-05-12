@@ -5,17 +5,21 @@ import norswap.utils.Util;
 
 public final class ForNode extends StatementNode
 {
-    public final ExpressionNode condition;
-    public final StatementNode body;
     public final VarDeclarationNode variable;
+    public final ExpressionNode condition;
     public final AssignmentNode operation;
+    public final StatementNode body;
+
+
 
     public ForNode (Span span, Object variable, Object condition, Object operation, Object body) {
         super(span);
-        this.condition = Util.cast(condition, ExpressionNode.class);
-        this.body = Util.cast(body, StatementNode.class);
         this.variable = Util.cast(variable, VarDeclarationNode.class);
+        this.condition = Util.cast(condition, ExpressionNode.class);
         this.operation = Util.cast(operation, AssignmentNode.class);
+        this.body = Util.cast(body, StatementNode.class);
+
+
     }
 
     @Override public String contents ()

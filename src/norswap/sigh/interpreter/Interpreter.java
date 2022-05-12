@@ -84,6 +84,7 @@ public final class Interpreter
         // statements
         visitor.register(ExpressionStatementNode.class,  this::expressionStmt);
         visitor.register(IfNode.class,                   this::ifStmt);
+        visitor.register(ForNode.class,                   this::forStmt);
         visitor.register(SwitchNode.class,               this::switchStmt);
         visitor.register(WhileNode.class,                this::whileStmt);
         visitor.register(ReturnNode.class,               this::returnStmt);
@@ -677,6 +678,18 @@ public final class Interpreter
     {
         while (get(node.condition))
             get(node.body);
+        return null;
+    }
+    // ---------------------------------------------------------------------------------------------
+
+    private Void forStmt (ForNode node)
+    {
+        Scope scope = reactor.get(node.variable, "scope");
+        varDecl(node.variable);
+        while (get(node.condition)) {
+            get(node.body);
+            assign(scope, node.variable.name, get(node.operation), reactor.get(node, "type"));
+        }
         return null;
     }
 

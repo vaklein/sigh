@@ -399,7 +399,16 @@ public final class InterpreterTests extends TestFixture {
         checkExpr("[x for x in [1, 2, 3, 4] (x \"<\" -5) ]", new Object[]{});
         checkExpr("[x for x in [\"1\", \"2\", \"3\", \"4\"] (x \"==\" \"10\") ]", new Object[]{});
     }
-
+    @Test
+    public void testFor () {
+        rule = grammar.root;
+        check("" +
+            "for (var i: Int = 1 , i < 3 , i = i + 1) {" +
+            "print(\"\" + i)" +
+            "}",
+            null,
+            "1\n2\n");
+    }
     // ---------------------------------------------------------------------------------------------
 
     @Test
