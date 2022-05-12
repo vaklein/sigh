@@ -50,6 +50,13 @@ public final class SighRunner
         reactor.run();
         Set<SemanticError> errors = reactor.errors();
 
+        root = result.topValue();
+        reactor = new Reactor();
+        walker = SemanticAnalysis.createWalker(reactor);
+        walker.walk(root);
+        reactor.run();
+
+
         if (!errors.isEmpty()) {
             // TODO improve
             for (SemanticError error: errors) {

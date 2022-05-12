@@ -1,5 +1,8 @@
 package norswap.sigh;
 
+import norswap.autumn.Autumn;
+import norswap.autumn.ParseOptions;
+import norswap.autumn.ParseResult;
 import norswap.sigh.ast.*;
 import norswap.sigh.interpreter.Void;
 import norswap.sigh.scopes.DeclarationContext;
@@ -11,16 +14,20 @@ import norswap.sigh.types.*;
 import norswap.uranium.Attribute;
 import norswap.uranium.Reactor;
 import norswap.uranium.Rule;
+import norswap.uranium.SemanticError;
+import norswap.utils.IO;
 import norswap.utils.Util;
 import norswap.utils.visitors.ReflectiveFieldWalker;
 import norswap.utils.visitors.Walker;
-import sun.jvm.hotspot.debugger.cdbg.TemplateType;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -83,7 +90,7 @@ public final class SemanticAnalysis
     // region [Initialization]
     // =============================================================================================
 
-    private final Reactor R;
+    private Reactor R;
 
     /** Current scope. */
     private Scope scope;
@@ -93,6 +100,8 @@ public final class SemanticAnalysis
 
     /** Index of the current function argument. */
     private int argumentIndex;
+
+    private boolean pass = false;
 
     // ---------------------------------------------------------------------------------------------
 
@@ -510,20 +519,40 @@ public final class SemanticAnalysis
     private void templateCall (TemplateCallNode node)
     {
         this.inferenceContext = node;
+//        if (!pass){
+        System.out.println("enter");
         //Duplicate the declaration node from the scope
         scope.declare("bis", scope.lookup("test").declaration);
         TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
         //Modify the paramters
         List<ParameterNode> liste = test.parameters;
         System.out.println(liste);
+
         for (int i =0; i < liste.size(); i++){
+            pass = true;
             String type = node.arguments.get(i).getClass().getSimpleName();
             type = type.split("L")[0];
             liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type+"Type");
         }
         //Create new decleration node with name "bis"
         test.parameters = liste;
-
+//        }
+        System.out.println("entereeeeee");
+//        if (pass){
+//            System.out.println("recursif");
+//            String file = "project.si";
+//            String path = Paths.get("examples/", file).toAbsolutePath().toString();
+//            String src = IO.slurp(path);
+//            SighGrammar grammar = new SighGrammar();
+//            ParseOptions options = ParseOptions.builder().recordCallStack(true).get();
+//            ParseResult result = Autumn.parse(grammar.root, src, options);
+//            SighNode tree = cast(result.topValue());
+//            R = new Reactor();
+//            Walker<SighNode> walker = SemanticAnalysis.createWalker(R);
+//            walker.walk(tree);
+//            R.run();
+//        }
+        pass = false;
 //        TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
 //        //On essaye de redeclare le nouveau template avec un nom different
 //
