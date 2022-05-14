@@ -373,8 +373,6 @@ public final class InterpreterTests extends TestFixture {
 
         check("switch([1,2]) { case([1]): return \"1\", case([1,2]): return \"2\"}", "2");
         check("switch([1,2]) { case([1]): return \"1\", case([1,2,3]): return \"2\"}", null);
-
-//        check("fun f(x: Int): Int {switch(x) { case(1): return 1, case(2): return 2} return -1}; return f(2)", 1L);
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -409,12 +407,81 @@ public final class InterpreterTests extends TestFixture {
     @Test
     public void testFor () {
         rule = grammar.root;
+        //Int
         check("" +
             "for (var i: Int = 1 , i < 3 , i = i + 1) {" +
             "print(\"\" + i)" +
             "}",
             null,
             "1\n2\n");
+        check("" +
+                "for (var i: Int = 1 , i <= 3 , i = i + 1) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "1\n2\n3\n");
+        check("" +
+                "for (var i: Int = 1 , i < 5 , i = i * 2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "1\n2\n4\n");
+        check("" +
+                "for (var i: Int = 10 , i > 5 , i = i - 1) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "10\n9\n8\n7\n6\n");
+        check("" +
+                "for (var i: Int = 10 , i >= 5 , i = i - 1) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "10\n9\n8\n7\n6\n5\n");
+        check("" +
+                "for (var i: Int = 10 , i >= 5 , i = i / 2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "10\n5\n");
+
+        //Float
+        check("" +
+                "for (var i: Float = 2.5 , i < 2.8 , i = i + 0.1) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "2.5\n2.6\n2.7\n");
+        check("" +
+                "for (var i: Float = 2.5 , i <= 2.7 , i = i + 0.1) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "2.5\n2.6\n2.7\n");
+        check("" +
+                "for (var i: Float = 1.25 , i < 5 , i = i * 2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "1.25\n2.5\n");
+        check("" +
+                "for (var i: Float = 6.2 , i > 5.4 , i = i - 0.2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "6.2\n6.0\n5.8\n5.6\n");
+        check("" +
+                "for (var i: Float = 6.2 , i >= 5.6 , i = i - 0.2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "6.2\n6.0\n5.8\n5.6\n");
+        check("" +
+                "for (var i: Float = 2.2 , i >= 1 , i = i / 2) {" +
+                "print(\"\" + i)" +
+                "}",
+            null,
+            "2.2\n1.1\n");
     }
     // ---------------------------------------------------------------------------------------------
 
