@@ -1043,11 +1043,12 @@ public final class SemanticAnalysis
         R.rule()
             .using(node.argument, "type")
             .by(r -> {
-                if (node.argument == null) {
+                Type type = r.get(0);
+                if ((type instanceof NullType)) {
                     r.error("Argument is null",
                         null);
                 }
-                if (node.cases == null) {
+                if (node.cases.size() == 0) {
                     r.error("Cases are null",
                         null);
                 }
@@ -1061,8 +1062,8 @@ public final class SemanticAnalysis
             .using(node.condition, "type")
             .by(r -> {
                 Type type = r.get(0);
-                if ((type instanceof VoidType)) {
-                    r.error("Case statement with a void value: " + type,
+                if ((type instanceof NullType)) {
+                    r.error("Case statement with a null value",
                         node.condition);
                 }
             });

@@ -147,43 +147,6 @@ public class GrammarTests extends AutumnTestFixture {
                 asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))),
                     new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))),
                     new CaseNode(null, intlit(3), new ReturnNode(null, intlit(9))))));
-
-        //Switch/case in function
-        successExpect("fun f (x: Int): Int { " +
-                "switch (x) { case 5 : return 0} " +
-                "return 2 }",
-            new FunDeclarationNode(null, "f",
-                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
-                new SimpleTypeNode(null, "Int"),
-                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
-                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))))),
-                    new ReturnNode(null, intlit(2))))));
-
-        successExpect("fun f (x: Int): Int { " +
-                "switch (x) { case 5 : return 0," +
-                "             case 1 : return -1} " +
-                "return 2 }",
-            new FunDeclarationNode(null, "f",
-                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
-                new SimpleTypeNode(null, "Int"),
-                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
-                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))),
-                               new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))))),
-                    new ReturnNode(null, intlit(2))))));
-
-        successExpect("fun f (x: Int): Int { " +
-                "switch (x) { case 5 : return 0," +
-                "             case 1 : return -1," +
-                "             case 3 : return 9} " +
-                "return 2 }",
-            new FunDeclarationNode(null, "f",
-                asList(new ParameterNode(null, "x", new SimpleTypeNode(null, "Int"))),
-                new SimpleTypeNode(null, "Int"),
-                new BlockNode(null, asList(new SwitchNode(null, new ReferenceNode(null, "x"),
-                        asList(new CaseNode(null, intlit(5), new ReturnNode(null, intlit(0))),
-                               new CaseNode(null, intlit(1), new ReturnNode(null, intlit(-1))),
-                               new CaseNode(null, intlit(3), new ReturnNode(null, intlit(9))))),
-                    new ReturnNode(null, intlit(2))))));
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -249,6 +212,24 @@ public class GrammarTests extends AutumnTestFixture {
             new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(1)),
             new BinaryExpressionNode(null, new ReferenceNode(null, "i"), LOWER, intlit(3)),
             new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), ADD, intlit(1))),
+            new BlockNode(null, asList(new ReturnNode(null, null)))));
+
+        successExpect("for (var i : Int = 5 , i > 3 , i = i-1) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(5)),
+            new BinaryExpressionNode(null, new ReferenceNode(null, "i"), GREATER, intlit(3)),
+            new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), SUBTRACT, intlit(1))),
+            new BlockNode(null, asList(new ReturnNode(null, null)))));
+
+        successExpect("for (var i : Int = 5 , i >= 3 , i = i/2) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(5)),
+            new BinaryExpressionNode(null, new ReferenceNode(null, "i"), GREATER_EQUAL, intlit(3)),
+            new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), DIVIDE, intlit(2))),
+            new BlockNode(null, asList(new ReturnNode(null, null)))));
+
+        successExpect("for (var i : Int = 1 , i <= 3 , i = i*2) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(1)),
+            new BinaryExpressionNode(null, new ReferenceNode(null, "i"), LOWER_EQUAL, intlit(3)),
+            new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), MULTIPLY, intlit(2))),
             new BlockNode(null, asList(new ReturnNode(null, null)))));
     }
 

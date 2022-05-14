@@ -350,14 +350,34 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
     // ---------------------------------------------------------------------------------------------
     @Test public void switchCase()
     {
-        successInput("switch(1) { case(1): return 1, case(2): return 2}");
-        successInput("switch(1) { case(1): return 1, case(2): return 2}");
-        successInput("fun f(x:Int): Int { switch(x) { case(1): return 1, case(2): return 2} return 3} ; return f(1)");
+        successInput("switch(1) { case(1): print(\"1\"), case(2): print(\"1\")}");
+        successInput("var phrase : String = \"ca va ?\""+
+            "switch(phrase){case(\"ca va ?\"):print(\"oui\")}");
+        successInput("var x : Int = 2"+
+            "switch(x){case(2):print(\"good\"), case(3):print(\"not good\")}");
+        successInput("var x : Float = 2.5"+
+            "switch(x){case(2.5):print(\"good\"), case(0.3):print(\"not good\")}");
+
+        failureInput("switch(p) { case(1): print(\"1\"), case(2): print(\"1\")}");
+        failureInput("switch(Null) { case(1): print(\"1\"), case(2): print(\"1\")}");
+        failureInput("switch(1) { case(Null): print(\"1\"), case(2): print(\"1\")}");
+        failureInput("switch(1) { case(1): print(\"1\"), case(Null): print(\"1\")}");
     }
 
     // ---------------------------------------------------------------------------------------------
     @Test public void forStmt()
     {
         successInput("for (var i: Int = 0 , i < 4 , i = i + 1) {}");
+        successInput("for (var i: Int = 0 , i <= 4 , i = i * 2) {}");
+        successInput("for (var i: Int = 10 , i > 4 , i = i / 2) {}");
+        successInput("for (var i: Int = 11 , i >= 4 , i = i - 1) {}");
+
+        successInput("for (var i: Float = 1.5 , i < 4.3 , i = i + 1.1) {}");
+        successInput("for (var i: Float = 1.1 , i <= 4.1 , i = i * 2.5) {}");
+        successInput("for (var i: Float = 9.9 , i > 4.6 , i = i / 1.22) {}");
+        successInput("for (var i: Float = 10.6 , i >= 4.4 , i = i - 0.2) {}");
+
+        failureInput("for (var i: Bool = true, i < true , i = i + 1) {}");
+        failureInput("for (var i: Bool = true, i < 4 , i = i + false) {}");
     }
 }
