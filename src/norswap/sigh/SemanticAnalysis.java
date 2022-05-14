@@ -522,11 +522,10 @@ public final class SemanticAnalysis
         this.inferenceContext = node;
         if (!pass){
             System.out.println("enter");
-            System.out.println();
             pass = true;
             //Duplicate the declaration node from the scope
             scope.declare("bis", scope.lookup("test").declaration);
-            TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+            TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
             //Modify the paramters
             List<ParameterNode> liste = test.parameters;
             System.out.println(liste);
@@ -539,7 +538,7 @@ public final class SemanticAnalysis
             }
             //Create new decleration node with name "bis"
             test.parameters = liste;
-
+            R.set(node, "scope", scope);
         }
 
         else{
@@ -550,6 +549,7 @@ public final class SemanticAnalysis
                 dependencies[i + 1] = arg.attr("type");
                 R.set(arg, "index", i);
             });
+            System.out.println("second pass");
             System.out.println(Arrays.toString(dependencies));
 
             R.rule(node, "type")

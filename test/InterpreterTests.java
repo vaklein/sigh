@@ -70,7 +70,6 @@ public final class InterpreterTests extends TestFixture {
         reactor.run();
 
         reactor = new Reactor();
-        walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(root);
         reactor.run();
 
