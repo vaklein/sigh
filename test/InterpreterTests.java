@@ -66,9 +66,15 @@ public final class InterpreterTests extends TestFixture {
 
         Reactor reactor = new Reactor();
         Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
-        Interpreter interpreter = new Interpreter(reactor);
         walker.walk(root);
         reactor.run();
+
+        reactor = new Reactor();
+        walker = SemanticAnalysis.createWalker(reactor);
+        walker.walk(root);
+        reactor.run();
+
+        Interpreter interpreter = new Interpreter(reactor);
         Set<SemanticError> errors = reactor.errors();
 
         if (!errors.isEmpty()) {
@@ -210,6 +216,7 @@ public final class InterpreterTests extends TestFixture {
 
     @Test
     public void testVarDecl () {
+        rule = grammar.root;
         check("var x: Int = 1; return x", 1L);
         check("var x: Float = 2.0; return x", 2d);
 

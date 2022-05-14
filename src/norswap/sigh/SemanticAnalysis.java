@@ -1,9 +1,11 @@
 package norswap.sigh;
 
 import norswap.autumn.Autumn;
+import norswap.autumn.AutumnTestFixture;
 import norswap.autumn.ParseOptions;
 import norswap.autumn.ParseResult;
 import norswap.sigh.ast.*;
+import norswap.sigh.interpreter.Interpreter;
 import norswap.sigh.interpreter.Void;
 import norswap.sigh.scopes.DeclarationContext;
 import norswap.sigh.scopes.DeclarationKind;
@@ -516,100 +518,85 @@ public final class SemanticAnalysis
         });
     }
     // -----------------------------------------------------------+----------------------------------
-    private void templateCall (TemplateCallNode node)
-    {
+    private void templateCall (TemplateCallNode node) {
         this.inferenceContext = node;
-//        if (!pass){
-        System.out.println("enter");
-        //Duplicate the declaration node from the scope
-        scope.declare("bis", scope.lookup("test").declaration);
-        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
-        //Modify the paramters
-        List<ParameterNode> liste = test.parameters;
-        System.out.println(liste);
-
-        for (int i =0; i < liste.size(); i++){
+        if (!pass){
+            System.out.println("enter");
+            System.out.println();
             pass = true;
-            String type = node.arguments.get(i).getClass().getSimpleName();
-            type = type.split("L")[0];
-            liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type+"Type");
+            //Duplicate the declaration node from the scope
+            scope.declare("bis", scope.lookup("test").declaration);
+            TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+            //Modify the paramters
+            List<ParameterNode> liste = test.parameters;
+            System.out.println(liste);
+
+            for (int i =0; i < liste.size(); i++){
+                pass = true;
+                String type = node.arguments.get(i).getClass().getSimpleName();
+                type = type.split("L")[0];
+                liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type+"Type");
+            }
+            //Create new decleration node with name "bis"
+            test.parameters = liste;
+
         }
-        //Create new decleration node with name "bis"
-        test.parameters = liste;
-//        }
-        System.out.println("entereeeeee");
-//        if (pass){
-//            System.out.println("recursif");
-//            String file = "project.si";
-//            String path = Paths.get("examples/", file).toAbsolutePath().toString();
-//            String src = IO.slurp(path);
-//            SighGrammar grammar = new SighGrammar();
-//            ParseOptions options = ParseOptions.builder().recordCallStack(true).get();
-//            ParseResult result = Autumn.parse(grammar.root, src, options);
-//            SighNode tree = cast(result.topValue());
-//            R = new Reactor();
-//            Walker<SighNode> walker = SemanticAnalysis.createWalker(R);
-//            walker.walk(tree);
-//            R.run();
-//        }
-        pass = false;
-//        TemplateDeclarationNode test2 = new TemplateDeclarationNode(test.span, "bis", liste, test.returnType, test.block);
-//        //On essaye de redeclare le nouveau template avec un nom different
-//
-//
-//        //On recree une node qui va executer le nouveau template
-//        ExpressionNode template2 = Util.cast(new ReferenceNode(test2.span, "bis"), ExpressionNode.class);
 
-        //node.template = Util.cast(new ReferenceNode(test.span, "bis"), ExpressionNode.class);
-
-
-        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-        dependencies[0] = node.template.attr("type");
-        forEachIndexed(node.arguments, (i, arg) -> {
-            dependencies[i + 1] = arg.attr("type");
-            R.set(arg, "index", i);
-        });
-        System.out.println(Arrays.toString(dependencies));
-
-        R.rule(node, "type")
-            .using(dependencies)
-            .by(r -> {
-                System.out.println("start");
-
-                Type maybeFunType = r.get(0);
-
-                System.out.println("ici2" + r.get(1) + " " + r.get(2));
-
-                if (!(maybeFunType instanceof FunType)) {
-                    r.error("trying to call a non-function expression: " + node.template, node.template);
-                    return;
-                }
-                FunType funType = cast(maybeFunType);
-                r.set(0, funType.returnType);
-
-                Type[] params = funType.paramTypes;
-                List<ExpressionNode> args = node.arguments;
-
-                if (params.length != args.size())
-                    r.errorFor(format("wrong number of arguments, expected %d but got %d",
-                            params.length, args.size()),
-                        node);
-
-                int checkedArgs = Math.min(params.length, args.size());
-
-                for (int i = 0; i < checkedArgs; ++i) {
-                    Type argType = r.get(i + 1);
-                    Type paramType = funType.paramTypes[i];
-                    if (!isAssignableTo(argType, paramType))
-                        r.errorFor(format(
-                                "incompatible argument provided for argument %d: expected %s but got %s",
-                                i, paramType, argType),
-                            node.arguments.get(i));
-                }
+        else{
+            pass = false;
+            Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
+            dependencies[0] = node.template.attr("type");
+            forEachIndexed(node.arguments, (i, arg) -> {
+                dependencies[i + 1] = arg.attr("type");
+                R.set(arg, "index", i);
             });
-        System.out.println("fini");
-        System.out.println(node);
+            System.out.println(Arrays.toString(dependencies));
+
+            R.rule(node, "type")
+                .using(dependencies)
+                .by(r -> {
+                    System.out.println("start");
+
+                    Type maybeFunType = r.get(0);
+
+                    System.out.println("ici2" + r.get(1) );
+                    //                    System.out.println("ici2" + r.get(2) );
+
+                    if (!(maybeFunType instanceof FunType)) {
+                        r.error("trying to call a non-function expression: " + node.template, node.template);
+                        return;
+                    }
+                    FunType funType = cast(maybeFunType);
+                    r.set(0, funType.returnType);
+
+                    Type[] params = funType.paramTypes;
+                    List<ExpressionNode> args = node.arguments;
+
+                    if (params.length != args.size())
+                        r.errorFor(format("wrong number of arguments, expected %d but got %d",
+                                params.length, args.size()),
+                            node);
+
+                    int checkedArgs = Math.min(params.length, args.size());
+
+                    for (int i = 0; i < checkedArgs; ++i) {
+                        Type argType = r.get(i + 1);
+                        Type paramType = funType.paramTypes[i];
+                        if (!isAssignableTo(argType, paramType))
+                            r.errorFor(format(
+                                    "incompatible argument provided for argument %d: expected %s but got %s",
+                                    i, paramType, argType),
+                                node.arguments.get(i));
+                    }
+                });
+            System.out.println("fini");
+            System.out.println(node);
+
+        }
+
     }
+
+
     // ---------------------------------------------------------------------------------------------
 
     private void unaryExpression (UnaryExpressionNode node)
