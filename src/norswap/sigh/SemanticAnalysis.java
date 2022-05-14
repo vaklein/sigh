@@ -519,8 +519,9 @@ public final class SemanticAnalysis
     }
     // -----------------------------------------------------------+----------------------------------
     private void templateCall (TemplateCallNode node) {
+        boolean not_change = true;
         this.inferenceContext = node;
-        if (!pass){
+//        if (!pass){
             System.out.println("enter");
             pass = true;
             //Duplicate the declaration node from the scope
@@ -534,14 +535,19 @@ public final class SemanticAnalysis
                 pass = true;
                 String type = node.arguments.get(i).getClass().getSimpleName();
                 type = type.split("L")[0];
-                liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type+"Type");
+                if (!Objects.equals(test.parameters.get(0).type, new SimpleTypeNode(liste.get(i).span, "Int"))){
+                    liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type);
+                    not_change = false;
+                }
+
             }
             //Create new decleration node with name "bis"
             test.parameters = liste;
             R.set(node, "scope", scope);
-        }
+//        }
 
-        else{
+//        else{
+        if(not_change) {
             pass = false;
             Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
             dependencies[0] = node.template.attr("type");
@@ -559,7 +565,7 @@ public final class SemanticAnalysis
 
                     Type maybeFunType = r.get(0);
 
-                    System.out.println("ici2" + r.get(1) );
+                    System.out.println("ici2" + r.get(1));
                     //                    System.out.println("ici2" + r.get(2) );
 
                     if (!(maybeFunType instanceof FunType)) {
@@ -591,8 +597,8 @@ public final class SemanticAnalysis
                 });
             System.out.println("fini");
             System.out.println(node);
-
         }
+//        }
 
     }
 

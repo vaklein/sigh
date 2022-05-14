@@ -70,6 +70,7 @@ public final class InterpreterTests extends TestFixture {
         reactor.run();
 
         reactor = new Reactor();
+        walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(root);
         reactor.run();
 
@@ -257,21 +258,31 @@ public final class InterpreterTests extends TestFixture {
         //Template tests
 
         check(
+            "template test (x: Void):Int { return x }" +
+                "return test{1}",
+            1L);
+        check(
             "template test (x: Int):Int { return x }" +
                 "return test{1}",
             1L);
-        /*
-        check(
-            "template test (x: String, y: String):String { return x+y }" +
-                "return test[\"1\", \"3\"]",
-            "13");
-
 
         check(
             "template test (x: String, y: String):String { return x+y }" +
-                "return test[\"1\", \"3\"]",
+                "return test{\"1\", \"3\"}",
             "13");
-         */
+
+
+
+        check(
+            "template test (x: Void, y: String):String { return x+y }" +
+                "return test{\"1\", \"3\"}",
+            "13");
+
+        check(
+            "template test (x: Void, y: Void):String { return x+y }" +
+                "return test{\"1\", \"3\"}",
+            "13");
+
         check(
             "fun add (a: Int, b: Int): Int { return a + b } " +
                 "return add(4, 7)",
@@ -287,6 +298,47 @@ public final class InterpreterTests extends TestFixture {
             point);
 
         check("var str: String = null; return print(str + 1)", "null1", "null1\n");
+
+
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test
+    public void testTemplate () {
+        rule = grammar.root;
+
+        check(
+            "template test (x: Void):Int { return x }" +
+                "return test{1}",
+            1L);
+        check(
+            "template test (x: Int):Int { return x }" +
+                "return test{1}",
+            1L);
+
+        check(
+            "template test (x: String, y: String):String { return x+y }" +
+                "return test{\"1\", \"3\"}",
+            "13");
+
+
+
+        check(
+            "template test (x: Void, y: String):String { return x+y }" +
+                "return test{\"1\", \"3\"}",
+            "13");
+
+        check(
+            "template test (x: Void, y: Void):String { return x+y }" +
+                "return test{\"1\", \"3\"}",
+            "13");
+
+        check(
+            "template test (x: Void, y: Void, z: Int):String {  z=1; return x+y }" +
+                "return test{\"1\", \"3\", 5}",
+            "13");
+
     }
 
 
