@@ -508,26 +508,28 @@ public final class SemanticAnalysis
 
         boolean changed = false;
         this.inferenceContext = node;
+
         //Duplicate the declaration node from the scope
         scope.declare("bis", scope.lookup("test").declaration);
         TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
+
         //Modify the paramters
         List<ParameterNode> liste = test.parameters;
 
-        boolean prob_type = false;
-        if (node.arguments.size() == test.parameters.size()){
+        boolean prob_type = false; // to know if there is a probleme in the type of the input
+        if (node.arguments.size() == test.parameters.size()){ // check if the user provide the right number of argument
             for (int i =0; i < liste.size(); i++){
-                String type = node.arguments.get(i).getClass().getSimpleName();
+                String type = node.arguments.get(i).getClass().getSimpleName(); // get the type of th input
                 type = type.split("L")[0];
-                if (!Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void"))
-                    && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))) {
-                    prob_type = true;
+                if (!Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void")) // if the type of the parameter is != "Void
+                    && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))) { // if the expected type is different of the input type
+                    prob_type = true; // = error
                     break;
                 }
 
             }
         }
-        if (prob_type){
+        if (prob_type){ // if the input type are not the expected ones, we set the error and stop the semantics
             Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
             dependencies[0] = node.template.attr("type");
             forEachIndexed(node.arguments, (i, arg) -> {
@@ -562,20 +564,19 @@ public final class SemanticAnalysis
             return;
         }
 
-        if (node.arguments.size() == test.parameters.size()){
+        if (node.arguments.size() == test.parameters.size()){ // check if the user provide the right number of argument
             for (int i =0; i < liste.size(); i++){
-                String type = node.arguments.get(i).getClass().getSimpleName();
+                String type = node.arguments.get(i).getClass().getSimpleName(); // get the type of th input
                 type = type.split("L")[0];
-                if (Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void"))
-                    && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){
-                    liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type);
+                if (Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void")) // if the type of the parameter is "Void
+                    && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){ // if the type of the parameter is different of the input type
+                    liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type); // change the type of the parameter
                 }
             }
-            //Create new decleration node with name "bis"
-            test.parameters = liste;
+            test.parameters = liste; // update the parameters
             R.set(node, "scope", scope);
         }
-        else{
+        else{ // if the user provide not the right number of input, we set the error
             Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
             dependencies[0] = node.template.attr("type");
             forEachIndexed(node.arguments, (i, arg) -> {
@@ -603,47 +604,47 @@ public final class SemanticAnalysis
             return;
         }
 
+        // Then we check all the semantics rules
+        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
+        dependencies[0] = node.template.attr("type");
+        forEachIndexed(node.arguments, (i, arg) -> {
+            dependencies[i + 1] = arg.attr("type");
+            R.set(arg, "index", i);
+        });
 
-            Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-            dependencies[0] = node.template.attr("type");
-            forEachIndexed(node.arguments, (i, arg) -> {
-                dependencies[i + 1] = arg.attr("type");
-                R.set(arg, "index", i);
+        R.rule(node, "type")
+            .using(dependencies)
+            .by(r -> {
+                System.out.println("enter");
+                Type maybeFunType = r.get(0);
+
+                if (!(maybeFunType instanceof FunType)) {
+                    r.error("trying to call a non-function expression: " + node.template, node.template);
+                    return;
+                }
+                FunType funType = cast(maybeFunType);
+                r.set(0, funType.returnType);
+
+                Type[] params = funType.paramTypes;
+                List<ExpressionNode> args = node.arguments;
+
+                if (params.length != args.size())
+                    r.errorFor(format("wrong number of arguments, expected %d but got %d",
+                            params.length, args.size()),
+                        node);
+
+                int checkedArgs = Math.min(params.length, args.size());
+
+                for (int i = 0; i < checkedArgs; ++i) {
+                    Type argType = r.get(i + 1);
+                    Type paramType = funType.paramTypes[i];
+                    if (!isAssignableTo(argType, paramType))
+                        r.errorFor(format(
+                                "incompatible argument provided for argument %d: expected %s but got %s",
+                                i, paramType, argType),
+                            node.arguments.get(i));
+                }
             });
-
-            R.rule(node, "type")
-                .using(dependencies)
-                .by(r -> {
-                    System.out.println("enter");
-                    Type maybeFunType = r.get(0);
-
-                    if (!(maybeFunType instanceof FunType)) {
-                        r.error("trying to call a non-function expression: " + node.template, node.template);
-                        return;
-                    }
-                    FunType funType = cast(maybeFunType);
-                    r.set(0, funType.returnType);
-
-                    Type[] params = funType.paramTypes;
-                    List<ExpressionNode> args = node.arguments;
-
-                    if (params.length != args.size())
-                        r.errorFor(format("wrong number of arguments, expected %d but got %d",
-                                params.length, args.size()),
-                            node);
-
-                    int checkedArgs = Math.min(params.length, args.size());
-
-                    for (int i = 0; i < checkedArgs; ++i) {
-                        Type argType = r.get(i + 1);
-                        Type paramType = funType.paramTypes[i];
-                        if (!isAssignableTo(argType, paramType))
-                            r.errorFor(format(
-                                    "incompatible argument provided for argument %d: expected %s but got %s",
-                                    i, paramType, argType),
-                                node.arguments.get(i));
-                    }
-                });
 
     }
 
