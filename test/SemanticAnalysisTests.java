@@ -314,6 +314,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "template test (a: String, b: Void, c: Void): String { return a + b } " +
                 "return test{\"1\", \"2\", \"3\"}");
 
+
         // ** tests with only "Void" **
         successInput(
             "template test (a: Void): Int { return a } " +
@@ -352,16 +353,24 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         //              Failure Input                   //
         //////////////////////////////////////////////////
 
-        // ** incompatible type **
         failureInputWith(
             "template test (a: Int): Int { return a } " +
                 "return test{4.6}", "incompatible argument provided for argument 0: expected Int but got Float");
 
-        
+        failureInputWith(
+            "template test (a: Void, b: String): Int { return a } " +
+                "return test{4.6, 5}", "incompatible argument provided for argument 1: expected String but got Int");
+        failureInputWith(
+            "template test (a: Void, b: String, c: Int): Int { return a } " +
+                "return test{4.6, \"3\", \"2\"}", "incompatible argument provided for argument 2: expected Int but got String");
 
+        failureInputWith(
+            "template test (a: Void, b : Void): Int { return a } " +
+                "return test{4.6}", "wrong number of arguments, expected 2 but got 1");
 
-
-
+        failureInputWith(
+            "template test (a: Void): Int { return a } " +
+                "return test{4.6, 10}", "wrong number of arguments, expected 1 but got 2");
 
 
     }
