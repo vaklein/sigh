@@ -84,7 +84,7 @@ public final class Interpreter
         // statements
         visitor.register(ExpressionStatementNode.class,  this::expressionStmt);
         visitor.register(IfNode.class,                   this::ifStmt);
-        visitor.register(ForNode.class,                   this::forStmt);
+        visitor.register(ForNode.class,                  this::forStmt);
         visitor.register(SwitchNode.class,               this::switchStmt);
         visitor.register(WhileNode.class,                this::whileStmt);
         visitor.register(ReturnNode.class,               this::returnStmt);
@@ -310,10 +310,11 @@ public final class Interpreter
     // ---------------------------------------------------------------------------------------------
     private Void switchStmt (SwitchNode node)
     {
+        Object arg = get(node.argument);
         for (CaseNode i: node.cases){
-            ParenthesizedNode p = (ParenthesizedNode) i.condition;
-            if (node.argument.equals(p.expression))
-                get(i.trueStatement);
+            ExpressionNode p = i.condition;
+            if (arg.equals(get(p)))
+                get(i.instructions);
         }
         return null;
     }

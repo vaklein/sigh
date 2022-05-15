@@ -6,12 +6,12 @@ import norswap.utils.Util;
 public final class CaseNode extends StatementNode
 {
     public final ExpressionNode condition;
-    public final StatementNode trueStatement;
+    public final StatementNode instructions;
 
-    public CaseNode (Span span, Object condition, Object trueStatement) {
+    public CaseNode (Span span, Object condition, Object instructions) {
         super(span);
         this.condition = Util.cast(condition, ExpressionNode.class);
-        this.trueStatement = Util.cast(trueStatement, StatementNode.class);
+        this.instructions = Util.cast(instructions, StatementNode.class);
     }
 
     @Override public String contents ()

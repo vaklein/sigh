@@ -411,6 +411,8 @@ public final class InterpreterTests extends TestFixture {
     @Test
     public void testSwitchCase () {
         rule = grammar.root;
+
+        //Hard-coded values
         check("switch(1) { case(1): return 1, case(2): return 2}", 1L);
         check("switch(2) { case(1): return 1, case(2): return 2}", 2L);
         check("switch(5) { case(1): return 1, case(2): return 2, case(5): return 5}", 5L);
@@ -422,8 +424,19 @@ public final class InterpreterTests extends TestFixture {
 
         check("switch(1.2) { case(1.1): return \"1\", case(1.2): return \"2\"}", "2");
 
-        check("switch([1,2]) { case([1]): return \"1\", case([1,2]): return \"2\"}", "2");
-        check("switch([1,2]) { case([1]): return \"1\", case([1,2,3]): return \"2\"}", null);
+        //Variables in the switch argument and/or in the cases
+        check("var i: Int = 1; var u: Int = 1; switch(i) { case(u): return 1, case(2): return 2}", 1L);
+        check("var i: Int = 2; var u: Int = 1; switch(i) { case(u): return 1, case(2): return 2}", 2L);
+        check("var i: Int = 5; switch(i) { case(1): return 1, case(2): return 2, case(5): return 5}", 5L);
+        check("var i: Int = 1; switch(i) { case(1): return 1, case(2): return 2, case(3): return 5}", 1L);
+        check("var i: Int = 3; switch(i) { case(1): return 1, case(2): return 2}", null);
+
+        check("var i: String = \"1\"; var u: String = \"1\"; switch(i) { case(u): return 1, case(\"2\"): return 2}", 1L);
+        check("var i: String = \"3\"; switch(i) { case(\"1\"): return 1, case(\"2\"): return 2}", null);
+
+        check("var i: Float = 1.2; switch(i) { case(1.1): return \"1\", case(1.2): return \"2\"}", "2");
+        check("var i: Float = 1.2; var u: Float = 1.2; switch(i) { case(1.1): return \"1\", case(u): return \"2\"}", "2");
+
     }
 
     // ---------------------------------------------------------------------------------------------

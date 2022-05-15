@@ -1,12 +1,6 @@
 package norswap.sigh;
 
-import norswap.autumn.Autumn;
-import norswap.autumn.AutumnTestFixture;
-import norswap.autumn.ParseOptions;
-import norswap.autumn.ParseResult;
 import norswap.sigh.ast.*;
-import norswap.sigh.interpreter.Interpreter;
-import norswap.sigh.interpreter.Void;
 import norswap.sigh.scopes.DeclarationContext;
 import norswap.sigh.scopes.DeclarationKind;
 import norswap.sigh.scopes.RootScope;
@@ -16,20 +10,12 @@ import norswap.sigh.types.*;
 import norswap.uranium.Attribute;
 import norswap.uranium.Reactor;
 import norswap.uranium.Rule;
-import norswap.uranium.SemanticError;
-import norswap.utils.IO;
-import norswap.utils.Util;
 import norswap.utils.visitors.ReflectiveFieldWalker;
 import norswap.utils.visitors.Walker;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static java.lang.String.format;
@@ -164,7 +150,7 @@ public final class SemanticAnalysis
         walker.register(ExpressionStatementNode.class,  PRE_VISIT,  node -> {});
         walker.register(IfNode.class,                   PRE_VISIT,  analysis::ifStmt);
         walker.register(WhileNode.class,                PRE_VISIT,  analysis::whileStmt);
-        walker.register(ForNode.class,                PRE_VISIT,  analysis::forStmt);
+        walker.register(ForNode.class,                  PRE_VISIT,  analysis::forStmt);
         walker.register(ReturnNode.class,               PRE_VISIT,  analysis::returnStmt);
         walker.register(SwitchNode.class,               PRE_VISIT,  analysis::switchStmt);
         walker.register(CaseNode.class,                 PRE_VISIT,  analysis::caseStmt);
@@ -1039,7 +1025,7 @@ public final class SemanticAnalysis
                 }
             });
 
-        Attribute[] deps = getReturnsDependencies(list(node.trueStatement, null));
+        Attribute[] deps = getReturnsDependencies(list(node.instructions, null));
         R.rule(node, "returns")
             .using(deps)
             .by(r -> r.set(0, deps.length == 2 && Arrays.stream(deps).allMatch(r::get)));
