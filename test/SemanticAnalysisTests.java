@@ -235,13 +235,6 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "fun add (a: Int, b: Int): Int { return a + b } " +
             "return add(4, 7)");
 
-        //Template test
-        successInput(
-            "template test (a: Void): Int { return a } " +
-                "return test{4}");
-        successInput(
-            "template test (a: Int, b: Void): Int { return a + b } " +
-                "return test{4, 7.1}");
         successInput(
             "struct Point { var x: Int; var y: Int }" +
             "return $Point(1, 2)");
@@ -249,6 +242,128 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput("var str: String = null; return print(str + 1)");
 
         failureInputWith("return print(1)", "argument 0: expected String but got Int");
+    }
+
+    // ---------------------------------------------------------------------------------------------
+
+    @Test public void testTemplate() {
+
+        //////////////////////////////////////////////////
+        //              Success Input                   //
+        //////////////////////////////////////////////////
+
+        // ** tests without "Void" **
+        successInput(
+            "template test (a: Int): Int { return a } " +
+                "return test{4}");
+
+        successInput(
+            "template test (a: Int, b: Float): Float { return a + b } " +
+                "return test{4, 7.1}");
+        successInput(
+            "template test (a: Int, b: Float, c: String): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: String, b: String, c: String): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+
+
+        // tests mix "Void" and "no-Void"
+        successInput(
+            "template test (a: Int, b: Void): Float { return a + b } " +
+                "return test{4, 7.1}");
+        successInput(
+            "template test (a: Void, b: Float): Float { return a + b } " +
+                "return test{4, 7.1}");
+
+        successInput(
+            "template test (a: Int, b: Float, c: Void): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Int, b: Void, c: String): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Void, b: Float, c: String): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: String): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Void, b: Float, c: Void): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Int, b: Void, c: Void): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+
+        successInput(
+            "template test (a: Void, b: String, c: String): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: String, b: Void, c: String): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: String, b: String, c: Void): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: String): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: Void, b: String, c: Void): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: String, b: Void, c: Void): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+
+        // ** tests with only "Void" **
+        successInput(
+            "template test (a: Void): Int { return a } " +
+                "return test{4}");
+
+        successInput(
+            "template test (a: Void, b: Void): Float { return a + b } " +
+                "return test{4, 7.1}");
+
+
+        successInput(
+            "template test (a: Void, b: Void, c: Void): Float { return a + b } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: Void): Int { return a } " +
+                "return test{4, 7.1, \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: Void): String { return c } " +
+                "return test{4, 7.1, \"3\"}");
+
+        successInput(
+            "template test (a: Void, b: Void, c: Void): String { return a + b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: Void): String { return a } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: Void): String { return b } " +
+                "return test{\"1\", \"2\", \"3\"}");
+        successInput(
+            "template test (a: Void, b: Void, c: Void): String { return c } " +
+                "return test{\"1\", \"2\", \"3\"}");
+
+
+        //////////////////////////////////////////////////
+        //              Failure Input                   //
+        //////////////////////////////////////////////////
+
+        // ** incompatible type **
+        failureInputWith(
+            "template test (a: Int): Int { return a } " +
+                "return test{4.6}", "incompatible argument provided for argument 0: expected Int but got Float");
+
+        
+
+
+
+
+
+
     }
 
     // ---------------------------------------------------------------------------------------------

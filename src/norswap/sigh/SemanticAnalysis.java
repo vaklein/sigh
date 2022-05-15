@@ -421,7 +421,7 @@ public final class SemanticAnalysis
                         node.attr("type"));
                 return;
             }
-            
+
             if (!(type instanceof StructType)) {
                 r.errorFor("Trying to access a field on an expression of type " + type,
                         node,
@@ -519,88 +519,67 @@ public final class SemanticAnalysis
     }
     // -----------------------------------------------------------+----------------------------------
     private void templateCall (TemplateCallNode node) {
-        boolean not_change = true;
         this.inferenceContext = node;
-//        if (!pass){
-            System.out.println("enter");
-            pass = true;
-            //Duplicate the declaration node from the scope
-            scope.declare("bis", scope.lookup("test").declaration);
-            TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
-            //Modify the paramters
-            List<ParameterNode> liste = test.parameters;
-            System.out.println(liste);
+        //Duplicate the declaration node from the scope
+        scope.declare("bis", scope.lookup("test").declaration);
+        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
+        //Modify the paramters
+        List<ParameterNode> liste = test.parameters;
 
-            for (int i =0; i < liste.size(); i++){
-                pass = true;
-                String type = node.arguments.get(i).getClass().getSimpleName();
-                type = type.split("L")[0];
-                if (!Objects.equals(test.parameters.get(0).type, new SimpleTypeNode(liste.get(i).span, "Int"))){
-                    liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type);
-                    not_change = false;
-                }
-
+        for (int i =0; i < liste.size(); i++){
+            String type = node.arguments.get(i).getClass().getSimpleName();
+            type = type.split("L")[0];
+            if (Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void"))
+                && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){
+                liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type);
             }
-            //Create new decleration node with name "bis"
-            test.parameters = liste;
-            R.set(node, "scope", scope);
-//        }
 
-//        else{
-        if(not_change) {
-            pass = false;
-            Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-            dependencies[0] = node.template.attr("type");
-            forEachIndexed(node.arguments, (i, arg) -> {
-                dependencies[i + 1] = arg.attr("type");
-                R.set(arg, "index", i);
-            });
-            System.out.println("second pass");
-            System.out.println(Arrays.toString(dependencies));
-
-            R.rule(node, "type")
-                .using(dependencies)
-                .by(r -> {
-                    System.out.println("start");
-
-                    Type maybeFunType = r.get(0);
-
-                    System.out.println("ici2" + r.get(1));
-                    //                    System.out.println("ici2" + r.get(2) );
-
-                    if (!(maybeFunType instanceof FunType)) {
-                        r.error("trying to call a non-function expression: " + node.template, node.template);
-                        return;
-                    }
-                    FunType funType = cast(maybeFunType);
-                    r.set(0, funType.returnType);
-
-                    Type[] params = funType.paramTypes;
-                    List<ExpressionNode> args = node.arguments;
-
-                    if (params.length != args.size())
-                        r.errorFor(format("wrong number of arguments, expected %d but got %d",
-                                params.length, args.size()),
-                            node);
-
-                    int checkedArgs = Math.min(params.length, args.size());
-
-                    for (int i = 0; i < checkedArgs; ++i) {
-                        Type argType = r.get(i + 1);
-                        Type paramType = funType.paramTypes[i];
-                        if (!isAssignableTo(argType, paramType))
-                            r.errorFor(format(
-                                    "incompatible argument provided for argument %d: expected %s but got %s",
-                                    i, paramType, argType),
-                                node.arguments.get(i));
-                    }
-                });
-            System.out.println("fini");
-            System.out.println(node);
         }
-//        }
+        //Create new decleration node with name "bis"
+        test.parameters = liste;
+        R.set(node, "scope", scope);
 
-    }
+        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
+        dependencies[0] = node.template.attr("type");
+        forEachIndexed(node.arguments, (i, arg) -> {
+            dependencies[i + 1] = arg.attr("type");
+            R.set(arg, "index", i);
+        });
+
+        R.rule(node, "type")
+            .using(dependencies)
+            .by(r -> {
+
+                Type maybeFunType = r.get(0);
+
+                if (!(maybeFunType instanceof FunType)) {
+                    r.error("trying to call a non-function expression: " + node.template, node.template);
+                    return;
+                }
+                FunType funType = cast(maybeFunType);
+                r.set(0, funType.returnType);
+
+                Type[] params = funType.paramTypes;
+                List<ExpressionNode> args = node.arguments;
+
+                if (params.length != args.size())
+                    r.errorFor(format("wrong number of arguments, expected %d but got %d",
+                            params.length, args.size()),
+                        node);
+
+                int checkedArgs = Math.min(params.length, args.size());
+
+                for (int i = 0; i < checkedArgs; ++i) {
+                    Type argType = r.get(i + 1);
+                    Type paramType = funType.paramTypes[i];
+                    if (!isAssignableTo(argType, paramType))
+                        r.errorFor(format(
+                                "incompatible argument provided for argument %d: expected %s but got %s",
+                                i, paramType, argType),
+                            node.arguments.get(i));
+                }
+            });
+        }
 
 
     // ---------------------------------------------------------------------------------------------
