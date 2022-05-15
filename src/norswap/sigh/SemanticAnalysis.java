@@ -522,7 +522,7 @@ public final class SemanticAnalysis
         this.inferenceContext = node;
         //Duplicate the declaration node from the scope
         scope.declare("bis", scope.lookup("test").declaration);
-        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("test").declaration;
+        TemplateDeclarationNode test = (TemplateDeclarationNode) scope.lookup("bis").declaration;
         //Modify the paramters
         List<ParameterNode> liste = test.parameters;
 
@@ -533,7 +533,6 @@ public final class SemanticAnalysis
                 && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){
                 liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type);
             }
-
         }
         //Create new decleration node with name "bis"
         test.parameters = liste;

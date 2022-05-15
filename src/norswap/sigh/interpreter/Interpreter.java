@@ -591,7 +591,6 @@ public final class Interpreter
 
     private Object templateCall (TemplateCallNode node)
     {
-        System.out.println("couc");
         Object decl = get(node.template);
         node.arguments.forEach(this::run);
         Object[] args = map(node.arguments, new Object[0], visitor);
