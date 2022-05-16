@@ -562,20 +562,8 @@ public final class SemanticAnalysis
                 });
             return;
         }
-
-        if (node.arguments.size() == test.parameters.size()){ // check if the user provide the right number of argument
-            for (int i =0; i < liste.size(); i++){
-                String type = node.arguments.get(i).getClass().getSimpleName(); // get the type of th input
-                type = type.split("L")[0];
-                if (Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void")) // if the type of the parameter is "Void
-                    && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){ // if the type of the parameter is different of the input type
-                    liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type); // change the type of the parameter
-                }
-            }
-            test.parameters = liste; // update the parameters
-            R.set(node, "scope", scope);
-        }
-        else{ // if the user don't provide the right number of input, we set the error
+        if (node.arguments.size() != test.parameters.size()){
+            // if the user don't provide the right number of input, we set the error
             Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
             dependencies[0] = node.template.attr("type");
             forEachIndexed(node.arguments, (i, arg) -> {
@@ -602,47 +590,17 @@ public final class SemanticAnalysis
                 });
             return;
         }
-
-        // Then we check all the semantics rules
-        Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
-        dependencies[0] = node.template.attr("type");
-        forEachIndexed(node.arguments, (i, arg) -> {
-            dependencies[i + 1] = arg.attr("type");
-            R.set(arg, "index", i);
-        });
-
-        R.rule(node, "type")
-            .using(dependencies)
-            .by(r -> {
-                Type maybeFunType = r.get(0);
-
-                if (!(maybeFunType instanceof FunType)) {
-                    r.error("trying to call a non-function expression: " + node.template, node.template);
-                    return;
-                }
-                FunType funType = cast(maybeFunType);
-                r.set(0, funType.returnType);
-
-                Type[] params = funType.paramTypes;
-                List<ExpressionNode> args = node.arguments;
-
-                if (params.length != args.size())
-                    r.errorFor(format("wrong number of arguments, expected %d but got %d",
-                            params.length, args.size()),
-                        node);
-
-                int checkedArgs = Math.min(params.length, args.size());
-
-                for (int i = 0; i < checkedArgs; ++i) {
-                    Type argType = r.get(i + 1);
-                    Type paramType = funType.paramTypes[i];
-                    if (!isAssignableTo(argType, paramType))
-                        r.errorFor(format(
-                                "incompatible argument provided for argument %d: expected %s but got %s",
-                                i, paramType, argType),
-                            node.arguments.get(i));
-                }
-            });
+        // check if the user provide the right number of argument
+        for (int i =0; i < liste.size(); i++){
+            String type = node.arguments.get(i).getClass().getSimpleName(); // get the type of the input
+            type = type.split("L")[0];
+            if (Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, "Void")) // if the type of the parameter is "Void
+                && !Objects.equals(test.parameters.get(i).type, new SimpleTypeNode(liste.get(i).span, type))){ // if the type of the parameter is different of the input type
+                liste.get(i).type = new SimpleTypeNode(liste.get(i).span, type); // change the type of the parameter
+            }
+        }
+        test.parameters = liste; // update the parameters
+        R.set(node, "scope", scope);
     }
 
 
