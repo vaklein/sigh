@@ -314,10 +314,6 @@ public final class InterpreterTests extends TestFixture {
             "template test (x: Void, y: Void, z: Int):Float {  z=1; return x+y }" +
                 "return test{1.1, 1.2, 5}",
             2.3d);
-        check(
-            "fun add (a: Int, b: Int): Int { return a + b } " +
-                "return add(4, 7)",
-            11L);
 
     }
 

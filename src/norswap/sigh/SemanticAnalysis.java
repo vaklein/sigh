@@ -551,7 +551,6 @@ public final class SemanticAnalysis
                     for (int i = 0; i < checkedArgs; ++i) {
                         Type argType = r.get(i + 1);
                         Type paramType = funType.paramTypes[i];
-                        System.out.println(paramType.name());
                         if (!Objects.equals(paramType.name(), "Void") && !isAssignableTo(argType, paramType))
                             r.errorFor(format(
                                     "incompatible argument provided for argument %d: expected %s but got %s",
@@ -574,7 +573,7 @@ public final class SemanticAnalysis
             test.parameters = liste; // update the parameters
             R.set(node, "scope", scope);
         }
-        else{ // if the user provide not the right number of input, we set the error
+        else{ // if the user don't provide the right number of input, we set the error
             Attribute[] dependencies = new Attribute[node.arguments.size() + 1];
             dependencies[0] = node.template.attr("type");
             forEachIndexed(node.arguments, (i, arg) -> {
@@ -613,7 +612,6 @@ public final class SemanticAnalysis
         R.rule(node, "type")
             .using(dependencies)
             .by(r -> {
-                System.out.println("enter");
                 Type maybeFunType = r.get(0);
 
                 if (!(maybeFunType instanceof FunType)) {
@@ -643,7 +641,6 @@ public final class SemanticAnalysis
                             node.arguments.get(i));
                 }
             });
-
     }
 
 
@@ -1152,31 +1149,64 @@ public final class SemanticAnalysis
         R.set(node, "returns", true);
 
         FunDeclarationNode function = currentFunction();
-        if (function == null) // top-level return
+        if (function != null) { // top-level return
+            if (node.expression == null)
+                R.rule()
+                    .using(function.returnType, "value")
+                    .by(r -> {
+                        Type returnType = r.get(0);
+                        if (!(returnType instanceof VoidType))
+                            r.error("Return without value in a function with a return type.", node);
+                    });
+            else
+                R.rule()
+                    .using(function.returnType.attr("value"), node.expression.attr("type"))
+                    .by(r -> {
+                        Type formal = r.get(0);
+                        Type actual = r.get(1);
+                        if (formal instanceof VoidType)
+                            r.error("Return with value in a Void function.", node);
+                        else if (!isAssignableTo(actual, formal)) {
+                            r.errorFor(format(
+                                    "Incompatible return type, expected %s but got %s", formal, actual),
+                                node.expression);
+                        }
+                    });
             return;
-
-        if (node.expression == null)
-            R.rule()
-            .using(function.returnType, "value")
-            .by(r -> {
-               Type returnType = r.get(0);
-               if (!(returnType instanceof VoidType))
-                   r.error("Return without value in a function with a return type.", node);
-            });
-        else
-            R.rule()
-            .using(function.returnType.attr("value"), node.expression.attr("type"))
-            .by(r -> {
-                Type formal = r.get(0);
-                Type actual = r.get(1);
-                if (formal instanceof VoidType)
-                    r.error("Return with value in a Void function.", node);
-                else if (!isAssignableTo(actual, formal)) {
-                    r.errorFor(format(
-                        "Incompatible return type, expected %s but got %s", formal, actual),
-                        node.expression);
-                }
-            });
+        }
+        else {
+            TemplateDeclarationNode template = currentTemplate();
+            if (template != null) { // top-level return
+                if (node.expression == null)
+                    R.rule()
+                        .using(template.returnType, "value")
+                        .by(r -> {
+                            Type returnType = r.get(0);
+                            if (!(returnType instanceof VoidType))
+                                r.error("Return without value in a function with a return type.", node);
+                        });
+                else
+                    R.rule()
+                        .using(template.returnType.attr("value"), node.expression.attr("type"))
+                        .by(r -> {
+                            Type formal = r.get(0);
+                            Type actual = r.get(1);
+                            if (formal instanceof VoidType)
+                                r.error("Return with value in a Void function.", node);
+                            else if (Objects.equals(formal.name(), "Void") && !isAssignableTo(actual, formal)){
+                                r.errorFor(format(
+                                        "Incompatible return type, expected %s but got %s", formal, actual),
+                                    node.expression);
+                            }
+                            else if (!Objects.equals(actual.name(), "Void") && !isAssignableTo(actual, formal)) {
+                                r.errorFor(format(
+                                        "Incompatible return type, expected %s but got %s", formal, actual),
+                                    node.expression);
+                            }
+                        });
+                return;
+            }
+        }
     }
 
     // ---------------------------------------------------------------------------------------------
@@ -1188,6 +1218,17 @@ public final class SemanticAnalysis
             SighNode node = scope.node;
             if (node instanceof FunDeclarationNode)
                 return (FunDeclarationNode) node;
+            scope = scope.parent;
+        }
+        return null;
+    }
+    private TemplateDeclarationNode currentTemplate()
+    {
+        Scope scope = this.scope;
+        while (scope != null) {
+            SighNode node = scope.node;
+            if (node instanceof TemplateDeclarationNode)
+                return (TemplateDeclarationNode) node;
             scope = scope.parent;
         }
         return null;
