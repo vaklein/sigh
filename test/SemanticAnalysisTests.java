@@ -256,7 +256,6 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
         successInput(
             "template test (a: Int): Int { return a } " +
                 "return test{4}");
-
         successInput(
             "template test (a: Int, b: Float): Float { return a + b } " +
                 "return test{4, 7.1}");
@@ -358,8 +357,9 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
                 "return test{4.6}", "incompatible argument provided for argument 0: expected Int but got Float");
 
         failureInputWith(
-            "template test (a: Void, b: String): Int { return a } " +
+            "template test (a: Void, b: String): Float { return a } " +
                 "return test{4.6, 5}", "incompatible argument provided for argument 1: expected String but got Int");
+
         failureInputWith(
             "template test (a: Void, b: String, c: Int): Int { return a } " +
                 "return test{4.6, \"3\", \"2\"}", "incompatible argument provided for argument 2: expected Int but got String");
@@ -372,9 +372,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "template test (a: Void): Int { return a } " +
                 "return test{4.6, 10}", "wrong number of arguments, expected 1 but got 2");
 
-
     }
-
     // ---------------------------------------------------------------------------------------------
 
     @Test public void testArrayStructAccess() {
