@@ -312,8 +312,11 @@ public final class Interpreter
     {
         Object arg = get(node.argument);
         for (CaseNode i: node.cases){
-            ExpressionNode p = i.condition;
-            if (arg.equals(get(p)))
+            ExpressionNode u = i.condition;
+            if (arg.equals(get(u)))
+                get(i.instructions);
+            ParenthesizedNode p = (ParenthesizedNode) i.condition;
+            if (p.expression.equals(new StringLiteralNode(null, "_")))
                 get(i.instructions);
         }
         return null;
