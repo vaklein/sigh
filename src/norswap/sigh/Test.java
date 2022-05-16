@@ -34,6 +34,12 @@ public final class Test
         Reactor reactor = new Reactor();
         Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(tree);
+
+        tree = cast(result.topValue());
+        reactor = new Reactor();
+        walker = SemanticAnalysis.createWalker(reactor);
+        walker.walk(tree);
+
         reactor.run();
 
         if (!reactor.errors().isEmpty()) {

@@ -69,6 +69,7 @@ public final class InterpreterTests extends TestFixture {
         walker.walk(root);
         reactor.run();
 
+        root = parseResult.topValue();
         reactor = new Reactor();
         walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(root);
@@ -87,7 +88,8 @@ public final class InterpreterTests extends TestFixture {
             throw new AssertionError(report);
         }
 
-        Pair<String, Object> result = IO.captureStdout(() -> interpreter.interpret(root));
+        SighNode finalRoot = root;
+        Pair<String, Object> result = IO.captureStdout(() -> interpreter.interpret(finalRoot));
         assertEquals(result.b, expectedReturn);
         if (expectedOutput != null) assertEquals(result.a, expectedOutput);
     }
