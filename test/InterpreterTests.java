@@ -255,34 +255,6 @@ public final class InterpreterTests extends TestFixture {
     public void testCalls () {
         rule = grammar.root;
 
-        //Template tests
-
-        check(
-            "template test (x: Void):Int { return x }" +
-                "return test{1}",
-            1L);
-        check(
-            "template test (x: Int):Int { return x }" +
-                "return test{1}",
-            1L);
-
-        check(
-            "template test (x: String, y: String):String { return x+y }" +
-                "return test{\"1\", \"3\"}",
-            "13");
-
-
-
-        check(
-            "template test (x: Void, y: String):String { return x+y }" +
-                "return test{\"1\", \"3\"}",
-            "13");
-
-        check(
-            "template test (x: Void, y: Void):String { return x+y }" +
-                "return test{\"1\", \"3\"}",
-            "13");
-
         check(
             "fun add (a: Int, b: Int): Int { return a + b } " +
                 "return add(4, 7)",
@@ -338,6 +310,14 @@ public final class InterpreterTests extends TestFixture {
             "template test (x: Void, y: Void, z: Int):String {  z=1; return x+y }" +
                 "return test{\"1\", \"3\", 5}",
             "13");
+        check(
+            "template test (x: Float, y: Float, z: Int):Float {  z=1; return x+y }" +
+                "return test{1.1, 1.2, 5}",
+            2.3d);
+        check(
+            "fun add (a: Int, b: Int): String { return a + b } " +
+                "return add(4, 7)",
+            11L);
 
     }
 
