@@ -220,14 +220,14 @@ public class GrammarTests extends AutumnTestFixture {
             new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), SUBTRACT, intlit(1))),
             new BlockNode(null, asList(new ReturnNode(null, null)))));
 
-        successExpect("for (var i : Int = 5 , i >= 3 , i = i/2) { return } ", new ForNode(null,
-            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(5)),
+        successExpect("for (var i : Float = 5.3 , i >= 3 , i = i/2) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Float"), floatlit(5.3)),
             new BinaryExpressionNode(null, new ReferenceNode(null, "i"), GREATER_EQUAL, intlit(3)),
             new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), DIVIDE, intlit(2))),
             new BlockNode(null, asList(new ReturnNode(null, null)))));
 
-        successExpect("for (var i : Int = 1 , i <= 3 , i = i*2) { return } ", new ForNode(null,
-            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Int"), intlit(1)),
+        successExpect("for (var i : Float = 1.2 , i <= 3 , i = i*2) { return } ", new ForNode(null,
+            new VarDeclarationNode(null,"i", new SimpleTypeNode(null, "Float"), floatlit(1.2)),
             new BinaryExpressionNode(null, new ReferenceNode(null, "i"), LOWER_EQUAL, intlit(3)),
             new AssignmentNode(null, new ReferenceNode(null, "i"), new BinaryExpressionNode(null, new ReferenceNode(null, "i"), MULTIPLY, intlit(2))),
             new BlockNode(null, asList(new ReturnNode(null, null)))));
