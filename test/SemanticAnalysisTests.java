@@ -202,7 +202,7 @@ public final class SemanticAnalysisTests extends UraniumTestFixture
             "incpompactible condition with the type of the values");
 
         failureInputWith("[x for x in [1, 2, 3, 4] (x \"!=\" \"4\") ]",
-            "the elem in the conditon doesn't have the same type as the elem in the array");
+            "the elem in the condition doesn't have the same type as the elem in the array");
 
         failureInputWith("[x for x in [1, \"4\", 3, 4] (x \"!=\" 4) ]",
             "The array don't have all the same type");

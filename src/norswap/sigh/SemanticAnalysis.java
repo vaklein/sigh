@@ -300,7 +300,7 @@ public final class SemanticAnalysis
                     // test that the type of the elem in the array are the same as the elem in the condition
                     String t = array.components.get(0).getClass().getTypeName();
                     if (!t.equals(node.stmt.getClass().getTypeName())) {
-                        r.errorFor("the elem in the conditon doesn't have the same type as the elem in the array", node);
+                        r.errorFor("the elem in the condition doesn't have the same type as the elem in the array", node);
                     }
 
                     // test if all the elem in the array are of the same type
