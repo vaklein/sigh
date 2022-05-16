@@ -300,12 +300,8 @@ public final class Interpreter
                         return map(lst2, new Object[0], visitor);
                 }
                 break;
-
         }
         return new Object[]{};
-
-
-
     }
     // ---------------------------------------------------------------------------------------------
     private Void switchStmt (SwitchNode node)
