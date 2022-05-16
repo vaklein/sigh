@@ -17,8 +17,7 @@ import static norswap.utils.Util.cast;
 public final class Test
 {
     public static void main (String[] args) {
-//         String file = "fizzbuzz.si";
-        String file = "project.si";
+        String file = "fizzbuzz.si";
         String path = Paths.get("examples/", file).toAbsolutePath().toString();
         String src = IO.slurp(path);
         SighGrammar grammar = new SighGrammar();
@@ -33,11 +32,6 @@ public final class Test
         SighNode tree = cast(result.topValue());
         Reactor reactor = new Reactor();
         Walker<SighNode> walker = SemanticAnalysis.createWalker(reactor);
-        walker.walk(tree);
-
-        tree = cast(result.topValue());
-        reactor = new Reactor();
-        walker = SemanticAnalysis.createWalker(reactor);
         walker.walk(tree);
 
         reactor.run();
